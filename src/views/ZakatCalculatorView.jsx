@@ -1,3 +1,5 @@
+import { CURRENCY_OPTIONS } from "../models/zakatModel";
+import { getCurrencySymbol } from "../utils/currency";
 import { StepIndicator } from "../components/StepIndicator";
 import { useZakatCalculatorViewModel } from "../viewmodels/useZakatCalculatorViewModel";
 import { AssetsStepView } from "./steps/AssetsStepView";
@@ -6,6 +8,7 @@ import { ResultsStepView } from "./steps/ResultsStepView";
 
 export function ZakatCalculatorView() {
   const vm = useZakatCalculatorViewModel();
+  const currencySymbol = getCurrencySymbol(vm.currency);
 
   return (
     <main className="app-shell">
@@ -16,17 +19,38 @@ export function ZakatCalculatorView() {
           A guided zakat workflow with modular MVVM architecture for future
           upgrades.
         </p>
+        <div className="hero-toolbar">
+          <label className="currency-select" htmlFor="app-currency">
+            <span>App Currency</span>
+            <select
+              id="app-currency"
+              value={vm.currency}
+              onChange={(event) => vm.setCurrency(event.target.value)}
+            >
+              {CURRENCY_OPTIONS.map((item) => (
+                <option key={item.code} value={item.code}>
+                  {item.code} - {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </header>
 
       <StepIndicator currentStep={vm.step} onStepSelect={vm.jumpToStep} />
 
       {vm.step === 1 ? (
-        <AssetsStepView assets={vm.formData.assets} updateAsset={vm.updateAsset} />
+        <AssetsStepView
+          assets={vm.formData.assets}
+          updateAsset={vm.updateAsset}
+          currencySymbol={currencySymbol}
+        />
       ) : null}
       {vm.step === 2 ? (
         <LiabilitiesStepView
           liabilities={vm.formData.liabilities}
           updateLiability={vm.updateLiability}
+          currencySymbol={currencySymbol}
         />
       ) : null}
       {vm.step === 3 ? (
@@ -34,6 +58,7 @@ export function ZakatCalculatorView() {
           result={vm.result}
           prices={vm.prices}
           isLoadingPrices={vm.isLoadingPrices}
+          currency={vm.currency}
           nisabBasis={vm.formData.nisabBasis}
           setNisabBasis={vm.setNisabBasis}
         />

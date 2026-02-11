@@ -10,7 +10,40 @@ export const FALLBACK_METAL_PRICES_USD_PER_GRAM = {
   silver: 0.85,
 };
 
+export const DEFAULT_CURRENCY = "USD";
+
+export const CURRENCY_OPTIONS = [
+  { code: "USD", label: "US Dollar", symbol: "$" },
+  { code: "EUR", label: "Euro", symbol: "EUR" },
+  { code: "GBP", label: "British Pound", symbol: "GBP" },
+  { code: "AED", label: "UAE Dirham", symbol: "AED" },
+  { code: "SAR", label: "Saudi Riyal", symbol: "SAR" },
+  { code: "PKR", label: "Pakistani Rupee", symbol: "PKR" },
+  { code: "INR", label: "Indian Rupee", symbol: "INR" },
+  { code: "BDT", label: "Bangladeshi Taka", symbol: "BDT" },
+  { code: "MYR", label: "Malaysian Ringgit", symbol: "MYR" },
+  { code: "TRY", label: "Turkish Lira", symbol: "TRY" },
+  { code: "CAD", label: "Canadian Dollar", symbol: "CAD" },
+  { code: "AUD", label: "Australian Dollar", symbol: "AUD" },
+];
+
+export const FALLBACK_EXCHANGE_RATES_FROM_USD = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.79,
+  AED: 3.67,
+  SAR: 3.75,
+  PKR: 278,
+  INR: 83,
+  BDT: 117,
+  MYR: 4.45,
+  TRY: 32,
+  CAD: 1.35,
+  AUD: 1.52,
+};
+
 export const defaultFormData = {
+  currency: DEFAULT_CURRENCY,
   assets: {
     cashBank: "",
     cashOnHand: "",

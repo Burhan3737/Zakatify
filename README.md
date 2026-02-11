@@ -55,7 +55,7 @@ Use **Back/Next** buttons or the step indicator to navigate.
 
 ## Important notes
 
-- Values are shown in **USD**.
+- You can select a common currency at the top, and the same currency is used across inputs, nisab, and results.
 - This is an estimate tool and not a religious ruling.
 - For personal or scholarly guidance, consult a qualified local scholar.
 

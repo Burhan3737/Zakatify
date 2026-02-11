@@ -1,6 +1,10 @@
 import { InputField } from "../../components/InputField";
 
-export function LiabilitiesStepView({ liabilities, updateLiability }) {
+export function LiabilitiesStepView({
+  liabilities,
+  updateLiability,
+  currencySymbol,
+}) {
   return (
     <section className="panel">
       <h2>Step 2: Enter Liabilities</h2>
@@ -14,6 +18,7 @@ export function LiabilitiesStepView({ liabilities, updateLiability }) {
           tooltip="Payables due now, such as bills, credit cards, and short-term loans."
           value={liabilities.shortTermDebts}
           onChange={(value) => updateLiability("shortTermDebts", value)}
+          prefix={currencySymbol}
         />
       </div>
     </section>

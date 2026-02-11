@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  DEFAULT_CURRENCY,
   calculateZakat,
   defaultFormData,
   FALLBACK_METAL_PRICES_USD_PER_GRAM,
   STORAGE_KEY,
 } from "../models/zakatModel";
+import { fetchExchangeRatesFromUSD } from "../services/currencyRateService";
 import { fetchMetalPrices } from "../services/metalPriceService";
+import { getRateForCurrency } from "../utils/currency";
 
 function loadStoredForm() {
   try {
@@ -27,9 +30,15 @@ export function useZakatCalculatorViewModel() {
   const [formData, setFormData] = useState(loadStoredForm);
   const [step, setStep] = useState(1);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
-  const [prices, setPrices] = useState({
+  const [metalPricesUsd, setMetalPricesUsd] = useState({
     goldPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.gold,
     silverPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.silver,
+    source: "fallback-static",
+    fallback: true,
+    updatedAt: null,
+  });
+  const [exchangeRates, setExchangeRates] = useState({
+    rates: { [DEFAULT_CURRENCY]: 1 },
     source: "fallback-static",
     fallback: true,
     updatedAt: null,
@@ -46,7 +55,7 @@ export function useZakatCalculatorViewModel() {
     fetchMetalPrices()
       .then((result) => {
         if (!mounted) return;
-        setPrices(result);
+        setMetalPricesUsd(result);
       })
       .finally(() => {
         if (!mounted) return;
@@ -56,6 +65,32 @@ export function useZakatCalculatorViewModel() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchExchangeRatesFromUSD().then((result) => {
+      if (!mounted) return;
+      setExchangeRates(result);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const currency = formData.currency || DEFAULT_CURRENCY;
+  const conversionRate = getRateForCurrency(exchangeRates.rates, currency);
+
+  const prices = useMemo(
+    () => ({
+      ...metalPricesUsd,
+      goldPerGram: metalPricesUsd.goldPerGram * conversionRate,
+      silverPerGram: metalPricesUsd.silverPerGram * conversionRate,
+      currency,
+      conversionRateSource: exchangeRates.source,
+      conversionRateFallback: exchangeRates.fallback,
+    }),
+    [currency, conversionRate, exchangeRates.fallback, exchangeRates.source, metalPricesUsd]
+  );
 
   const result = useMemo(() => calculateZakat(formData, prices), [formData, prices]);
 
@@ -86,6 +121,13 @@ export function useZakatCalculatorViewModel() {
     }));
   }
 
+  function setCurrency(value) {
+    setFormData((current) => ({
+      ...current,
+      currency: value,
+    }));
+  }
+
   function nextStep() {
     setStep((current) => Math.min(current + 1, 3));
   }
@@ -101,12 +143,14 @@ export function useZakatCalculatorViewModel() {
   return {
     step,
     formData,
+    currency,
     prices,
     isLoadingPrices,
     result,
     updateAsset,
     updateLiability,
     setNisabBasis,
+    setCurrency,
     nextStep,
     previousStep,
     jumpToStep,

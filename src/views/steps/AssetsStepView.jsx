@@ -1,6 +1,6 @@
 import { InputField } from "../../components/InputField";
 
-export function AssetsStepView({ assets, updateAsset }) {
+export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
   return (
     <section className="panel">
       <h2>Step 1: Enter Zakatable Assets</h2>
@@ -15,6 +15,7 @@ export function AssetsStepView({ assets, updateAsset }) {
           tooltip="Money in checking/savings accounts and digital wallets."
           value={assets.cashBank}
           onChange={(value) => updateAsset("cashBank", value)}
+          prefix={currencySymbol}
         />
         <InputField
           id="cash-on-hand"
@@ -22,6 +23,7 @@ export function AssetsStepView({ assets, updateAsset }) {
           tooltip="Physical cash that you currently hold."
           value={assets.cashOnHand}
           onChange={(value) => updateAsset("cashOnHand", value)}
+          prefix={currencySymbol}
         />
       </div>
 
@@ -64,6 +66,7 @@ export function AssetsStepView({ assets, updateAsset }) {
             tooltip="Current market value of your gold holdings."
             value={assets.goldValue}
             onChange={(value) => updateAsset("goldValue", value)}
+            prefix={currencySymbol}
           />
         )}
       </div>
@@ -104,6 +107,7 @@ export function AssetsStepView({ assets, updateAsset }) {
             tooltip="Current market value of your silver holdings."
             value={assets.silverValue}
             onChange={(value) => updateAsset("silverValue", value)}
+            prefix={currencySymbol}
           />
         )}
       </div>
@@ -115,6 +119,7 @@ export function AssetsStepView({ assets, updateAsset }) {
           tooltip="Zakatable investment value including stocks and crypto."
           value={assets.investmentsCrypto}
           onChange={(value) => updateAsset("investmentsCrypto", value)}
+          prefix={currencySymbol}
         />
         <InputField
           id="receivables"
@@ -122,6 +127,7 @@ export function AssetsStepView({ assets, updateAsset }) {
           tooltip="Receivables you reasonably expect to collect."
           value={assets.receivables}
           onChange={(value) => updateAsset("receivables", value)}
+          prefix={currencySymbol}
         />
       </div>
     </section>

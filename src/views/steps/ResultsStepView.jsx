@@ -1,10 +1,4 @@
-function formatMoney(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
+import { formatMoney } from "../../utils/currency";
 
 function statusClass(status) {
   if (status === "Above") return "status-above";
@@ -16,6 +10,7 @@ export function ResultsStepView({
   result,
   prices,
   isLoadingPrices,
+  currency,
   nisabBasis,
   setNisabBasis,
 }) {
@@ -51,11 +46,11 @@ export function ResultsStepView({
       <div className="summary-grid">
         <article className="summary-card">
           <p>Total Zakatable Wealth</p>
-          <h3>{formatMoney(result.totals.netZakatableWealth)}</h3>
+          <h3>{formatMoney(result.totals.netZakatableWealth, currency)}</h3>
         </article>
         <article className="summary-card highlight">
           <p>Total Zakat Due (2.5%)</p>
-          <h3>{formatMoney(result.totals.zakatDue)}</h3>
+          <h3>{formatMoney(result.totals.zakatDue, currency)}</h3>
         </article>
       </div>
 
@@ -63,7 +58,7 @@ export function ResultsStepView({
         <p>Nisab Status</p>
         <h3 className={statusClass(result.nisab.status)}>{result.nisab.status}</h3>
         <small>
-          Selected threshold: {formatMoney(result.nisab.selectedThreshold)}
+          Selected threshold: {formatMoney(result.nisab.selectedThreshold, currency)}
         </small>
       </article>
 
@@ -72,31 +67,31 @@ export function ResultsStepView({
         <dl className="breakdown">
           <div>
             <dt>Cash (bank + on-hand)</dt>
-            <dd>{formatMoney(result.breakdown.cashTotal)}</dd>
+            <dd>{formatMoney(result.breakdown.cashTotal, currency)}</dd>
           </div>
           <div>
             <dt>Gold</dt>
-            <dd>{formatMoney(result.breakdown.goldTotal)}</dd>
+            <dd>{formatMoney(result.breakdown.goldTotal, currency)}</dd>
           </div>
           <div>
             <dt>Silver</dt>
-            <dd>{formatMoney(result.breakdown.silverTotal)}</dd>
+            <dd>{formatMoney(result.breakdown.silverTotal, currency)}</dd>
           </div>
           <div>
             <dt>Investments / Crypto</dt>
-            <dd>{formatMoney(result.breakdown.investmentsCrypto)}</dd>
+            <dd>{formatMoney(result.breakdown.investmentsCrypto, currency)}</dd>
           </div>
           <div>
             <dt>Receivables</dt>
-            <dd>{formatMoney(result.breakdown.receivables)}</dd>
+            <dd>{formatMoney(result.breakdown.receivables, currency)}</dd>
           </div>
           <div>
             <dt>Total Assets</dt>
-            <dd>{formatMoney(result.breakdown.totalAssets)}</dd>
+            <dd>{formatMoney(result.breakdown.totalAssets, currency)}</dd>
           </div>
           <div>
             <dt>Total Liabilities</dt>
-            <dd>{formatMoney(result.breakdown.totalLiabilities)}</dd>
+            <dd>{formatMoney(result.breakdown.totalLiabilities, currency)}</dd>
           </div>
         </dl>
       </article>
@@ -104,13 +99,23 @@ export function ResultsStepView({
       <article className="price-note">
         <h4>Nisab Price Source</h4>
         <p>
-          Gold: {formatMoney(prices.goldPerGram)} / gram, Silver:{" "}
-          {formatMoney(prices.silverPerGram)} / gram
+          Gold:{" "}
+          {formatMoney(prices.goldPerGram, currency, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4,
+          })}{" "}
+          / gram, Silver:{" "}
+          {formatMoney(prices.silverPerGram, currency, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 4,
+          })}{" "}
+          / gram
         </p>
         <p>
           Source: {prices.source}
           {isLoadingPrices ? " (loading latest...)" : ""}
           {prices.fallback ? " (fallback values in use)" : ""}
+          {prices.conversionRateFallback ? " (currency conversion fallback)" : ""}
         </p>
       </article>
     </section>
