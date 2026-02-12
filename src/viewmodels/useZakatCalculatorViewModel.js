@@ -3,7 +3,7 @@ import {
   DEFAULT_CURRENCY,
   calculateZakat,
   defaultFormData,
-  FALLBACK_METAL_PRICES_USD_PER_GRAM,
+  FALLBACK_METAL_PRICES_USD_PER_OUNCE,
   STORAGE_KEY,
 } from "../models/zakatModel";
 import { fetchExchangeRatesFromUSD } from "../services/currencyRateService";
@@ -31,8 +31,8 @@ export function useZakatCalculatorViewModel() {
   const [step, setStep] = useState(1);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [metalPricesUsd, setMetalPricesUsd] = useState({
-    goldPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.gold,
-    silverPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.silver,
+    goldPerOunce: FALLBACK_METAL_PRICES_USD_PER_OUNCE.gold,
+    silverPerOunce: FALLBACK_METAL_PRICES_USD_PER_OUNCE.silver,
     source: "fallback-static",
     fallback: true,
     updatedAt: null,
@@ -81,25 +81,70 @@ export function useZakatCalculatorViewModel() {
   const conversionRate = getRateForCurrency(exchangeRates.rates, currency);
 
   const GRAMS_PER_TROY_OUNCE = 31.1034768;
-  const GRAMS_PER_TOLA = 11.6638;
+  const GRAMS_PER_TOLA = 11.66;
 
+  // Convert metal prices from per-ounce to per-gram
+  const pricesPerGram = useMemo(
+    () => ({
+      goldPerGram: (metalPricesUsd.goldPerOunce / GRAMS_PER_TROY_OUNCE) * conversionRate,
+      silverPerGram: (metalPricesUsd.silverPerOunce / GRAMS_PER_TROY_OUNCE) * conversionRate,
+    }),
+    [metalPricesUsd, conversionRate]
+  );
+
+  // Convert user inputs to grams (or keep as value for value mode)
+  function convertToGrams(mode, grams, ounce, tola, value, pricePerGram) {
+    if (mode === "value") return Number(value || 0) / pricePerGram;
+    if (mode === "ounce") return Number(ounce || 0) * GRAMS_PER_TROY_OUNCE;
+    if (mode === "tola") return Number(tola || 0) * GRAMS_PER_TOLA;
+    return Number(grams || 0);
+  }
+
+  // Prepare formData with converted gram values for calculation
+  const formDataWithGrams = useMemo(
+    () => ({
+      ...formData,
+      assets: {
+        ...formData.assets,
+        goldGrams: convertToGrams(
+          formData.assets.goldMode,
+          formData.assets.goldGrams,
+          formData.assets.goldOunce,
+          formData.assets.goldTola,
+          formData.assets.goldValue,
+          pricesPerGram.goldPerGram
+        ),
+        silverGrams: convertToGrams(
+          formData.assets.silverMode,
+          formData.assets.silverGrams,
+          formData.assets.silverOunce,
+          formData.assets.silverTola,
+          formData.assets.silverValue,
+          pricesPerGram.silverPerGram
+        ),
+      },
+    }),
+    [formData, pricesPerGram]
+  );
+
+  // Prices for display (includes per-ounce and per-tola)
   const prices = useMemo(
     () => ({
       ...metalPricesUsd,
-      goldPerGram: metalPricesUsd.goldPerGram * conversionRate,
-      silverPerGram: metalPricesUsd.silverPerGram * conversionRate,
-      goldPerOunce: metalPricesUsd.goldPerGram * GRAMS_PER_TROY_OUNCE * conversionRate,
-      silverPerOunce: metalPricesUsd.silverPerGram * GRAMS_PER_TROY_OUNCE * conversionRate,
-      goldPerTola: metalPricesUsd.goldPerGram * GRAMS_PER_TOLA * conversionRate,
-      silverPerTola: metalPricesUsd.silverPerGram * GRAMS_PER_TOLA * conversionRate,
+      goldPerGram: pricesPerGram.goldPerGram,
+      silverPerGram: pricesPerGram.silverPerGram,
+      goldPerOunce: metalPricesUsd.goldPerOunce * conversionRate,
+      silverPerOunce: metalPricesUsd.silverPerOunce * conversionRate,
+      goldPerTola: pricesPerGram.goldPerGram * GRAMS_PER_TOLA,
+      silverPerTola: pricesPerGram.silverPerGram * GRAMS_PER_TOLA,
       currency,
       conversionRateSource: exchangeRates.source,
       conversionRateFallback: exchangeRates.fallback,
     }),
-    [currency, conversionRate, exchangeRates.fallback, exchangeRates.source, metalPricesUsd]
+    [metalPricesUsd, pricesPerGram, conversionRate, currency, exchangeRates]
   );
 
-  const result = useMemo(() => calculateZakat(formData, prices), [formData, prices]);
+  const result = useMemo(() => calculateZakat(formDataWithGrams, pricesPerGram), [formDataWithGrams, pricesPerGram]);
 
   function updateAsset(field, value) {
     setFormData((current) => ({

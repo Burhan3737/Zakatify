@@ -30,7 +30,7 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
       <div className="sub-panel">
         <h3>Gold</h3>
         <p>
-          Enter gold as either grams or value. This includes jewelry, bars, and
+          Enter gold as weight (grams, ounces, or tola) or value. This includes jewelry, bars, and
           coins.
         </p>
         <div className="toggle-group">
@@ -40,6 +40,20 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
             onClick={() => updateAsset("goldMode", "grams")}
           >
             Grams
+          </button>
+          <button
+            type="button"
+            className={assets.goldMode === "ounce" ? "toggle active" : "toggle"}
+            onClick={() => updateAsset("goldMode", "ounce")}
+          >
+            Ounce
+          </button>
+          <button
+            type="button"
+            className={assets.goldMode === "tola" ? "toggle active" : "toggle"}
+            onClick={() => updateAsset("goldMode", "tola")}
+          >
+            Tola
           </button>
           <button
             type="button"
@@ -59,6 +73,26 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
             placeholder="0"
             prefix="g"
           />
+        ) : assets.goldMode === "ounce" ? (
+          <InputField
+            id="gold-ounce"
+            label="Gold Weight"
+            tooltip="Total pure gold weight in troy ounces."
+            value={assets.goldOunce}
+            onChange={(value) => updateAsset("goldOunce", value)}
+            placeholder="0"
+            prefix="oz"
+          />
+        ) : assets.goldMode === "tola" ? (
+          <InputField
+            id="gold-tola"
+            label="Gold Weight"
+            tooltip="Total pure gold weight in tola (1 tola ≈ 11.66 grams)."
+            value={assets.goldTola}
+            onChange={(value) => updateAsset("goldTola", value)}
+            placeholder="0"
+            prefix="tola"
+          />
         ) : (
           <InputField
             id="gold-value"
@@ -73,7 +107,7 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
 
       <div className="sub-panel">
         <h3>Silver</h3>
-        <p>Enter silver as either grams or value. Includes jewelry and coins.</p>
+        <p>Enter silver as weight (grams, ounces, or tola) or value. Includes jewelry and coins.</p>
         <div className="toggle-group">
           <button
             type="button"
@@ -81,6 +115,20 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
             onClick={() => updateAsset("silverMode", "grams")}
           >
             Grams
+          </button>
+          <button
+            type="button"
+            className={assets.silverMode === "ounce" ? "toggle active" : "toggle"}
+            onClick={() => updateAsset("silverMode", "ounce")}
+          >
+            Ounce
+          </button>
+          <button
+            type="button"
+            className={assets.silverMode === "tola" ? "toggle active" : "toggle"}
+            onClick={() => updateAsset("silverMode", "tola")}
+          >
+            Tola
           </button>
           <button
             type="button"
@@ -99,6 +147,26 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
             onChange={(value) => updateAsset("silverGrams", value)}
             placeholder="0"
             prefix="g"
+          />
+        ) : assets.silverMode === "ounce" ? (
+          <InputField
+            id="silver-ounce"
+            label="Silver Weight"
+            tooltip="Total pure silver weight in troy ounces."
+            value={assets.silverOunce}
+            onChange={(value) => updateAsset("silverOunce", value)}
+            placeholder="0"
+            prefix="oz"
+          />
+        ) : assets.silverMode === "tola" ? (
+          <InputField
+            id="silver-tola"
+            label="Silver Weight"
+            tooltip="Total pure silver weight in tola (1 tola ≈ 11.66 grams)."
+            value={assets.silverTola}
+            onChange={(value) => updateAsset("silverTola", value)}
+            placeholder="0"
+            prefix="tola"
           />
         ) : (
           <InputField

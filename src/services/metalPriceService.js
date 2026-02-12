@@ -1,6 +1,4 @@
-import { FALLBACK_METAL_PRICES_USD_PER_GRAM } from "../models/zakatModel";
-
-const GRAMS_PER_TROY_OUNCE = 31.1034768;
+import { FALLBACK_METAL_PRICES_USD_PER_OUNCE } from "../models/zakatModel";
 
 function parseGoldApiResponse(payload) {
   if (!payload || typeof payload !== "object") return null;
@@ -34,16 +32,16 @@ export async function fetchMetalPrices() {
     }
 
     return {
-      goldPerGram: goldPerOunce / GRAMS_PER_TROY_OUNCE,
-      silverPerGram: silverPerOunce / GRAMS_PER_TROY_OUNCE,
+      goldPerOunce,
+      silverPerOunce,
       source: "gold-api.com",
       fallback: false,
       updatedAt: new Date().toISOString(),
     };
   } catch (_error) {
     return {
-      goldPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.gold,
-      silverPerGram: FALLBACK_METAL_PRICES_USD_PER_GRAM.silver,
+      goldPerOunce: FALLBACK_METAL_PRICES_USD_PER_OUNCE.gold,
+      silverPerOunce: FALLBACK_METAL_PRICES_USD_PER_OUNCE.silver,
       source: "fallback-static",
       fallback: true,
       updatedAt: new Date().toISOString(),

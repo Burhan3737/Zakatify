@@ -5,9 +5,9 @@ export const NISAB_GRAMS = {
   silver: 595,
 };
 
-export const FALLBACK_METAL_PRICES_USD_PER_GRAM = {
-  gold: 75,
-  silver: 0.85,
+export const FALLBACK_METAL_PRICES_USD_PER_OUNCE = {
+  gold: 2332.76,
+  silver: 26.44,
 };
 
 export const DEFAULT_CURRENCY = "USD";
@@ -49,9 +49,13 @@ export const defaultFormData = {
     cashOnHand: "",
     goldMode: "grams",
     goldGrams: "",
+    goldOunce: "",
+    goldTola: "",
     goldValue: "",
     silverMode: "grams",
     silverGrams: "",
+    silverOunce: "",
+    silverTola: "",
     silverValue: "",
     investmentsCrypto: "",
     receivables: "",
@@ -72,9 +76,7 @@ function roundCurrency(value) {
   return Math.round(value * 100) / 100;
 }
 
-function computeMetalValue(mode, gramsInput, valueInput, pricePerGram) {
-  // User can provide metal wealth by grams or direct current market value.
-  if (mode === "value") return toAmount(valueInput);
+function computeMetalValue(gramsInput, pricePerGram) {
   return toAmount(gramsInput) * pricePerGram;
 }
 
@@ -84,16 +86,12 @@ export function calculateZakat(formData, prices) {
   const cashTotal = cashBank + cashOnHand;
 
   const goldTotal = computeMetalValue(
-    formData.assets.goldMode,
     formData.assets.goldGrams,
-    formData.assets.goldValue,
     prices.goldPerGram
   );
 
   const silverTotal = computeMetalValue(
-    formData.assets.silverMode,
     formData.assets.silverGrams,
-    formData.assets.silverValue,
     prices.silverPerGram
   );
 
