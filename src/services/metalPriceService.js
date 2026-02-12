@@ -2,36 +2,42 @@ import { FALLBACK_METAL_PRICES_USD_PER_GRAM } from "../models/zakatModel";
 
 const GRAMS_PER_TROY_OUNCE = 31.1034768;
 
-function parseMetalsLiveSpot(payload) {
-  if (!Array.isArray(payload)) return null;
-  const flat = payload.reduce((acc, row) => ({ ...acc, ...row }), {});
-  const goldPerOunce = Number(flat.gold);
-  const silverPerOunce = Number(flat.silver);
-  if (!Number.isFinite(goldPerOunce) || !Number.isFinite(silverPerOunce)) {
-    return null;
-  }
-
-  return {
-    goldPerGram: goldPerOunce / GRAMS_PER_TROY_OUNCE,
-    silverPerGram: silverPerOunce / GRAMS_PER_TROY_OUNCE,
-    source: "metals.live",
-    fallback: false,
-  };
+function parseGoldApiResponse(payload) {
+  if (!payload || typeof payload !== "object") return null;
+  const price = Number(payload.price);
+  if (!Number.isFinite(price)) return null;
+  return price;
 }
 
 export async function fetchMetalPrices() {
   try {
-    const response = await fetch("https://api.metals.live/v1/spot");
-    if (!response.ok) {
-      throw new Error(`Metal API failed with ${response.status}`);
+    const [goldResponse, silverResponse] = await Promise.all([
+      fetch("https://api.gold-api.com/price/XAU"),
+      fetch("https://api.gold-api.com/price/XAG"),
+    ]);
+
+    if (!goldResponse.ok) {
+      throw new Error(`Gold API failed with ${goldResponse.status}`);
     }
-    const payload = await response.json();
-    const parsed = parseMetalsLiveSpot(payload);
-    if (!parsed) {
-      throw new Error("Unable to parse metal spot response.");
+    if (!silverResponse.ok) {
+      throw new Error(`Silver API failed with ${silverResponse.status}`);
     }
+
+    const goldPayload = await goldResponse.json();
+    const silverPayload = await silverResponse.json();
+
+    const goldPerOunce = parseGoldApiResponse(goldPayload);
+    const silverPerOunce = parseGoldApiResponse(silverPayload);
+
+    if (goldPerOunce === null || silverPerOunce === null) {
+      throw new Error("Unable to parse metal price response.");
+    }
+
     return {
-      ...parsed,
+      goldPerGram: goldPerOunce / GRAMS_PER_TROY_OUNCE,
+      silverPerGram: silverPerOunce / GRAMS_PER_TROY_OUNCE,
+      source: "gold-api.com",
+      fallback: false,
       updatedAt: new Date().toISOString(),
     };
   } catch (_error) {

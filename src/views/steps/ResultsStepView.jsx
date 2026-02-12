@@ -98,20 +98,43 @@ export function ResultsStepView({
 
       <article className="price-note">
         <h4>Nisab Price Source</h4>
-        <p>
-          Gold:{" "}
-          {formatMoney(prices.goldPerGram, currency, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 4,
-          })}{" "}
-          / gram, Silver:{" "}
-          {formatMoney(prices.silverPerGram, currency, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 4,
-          })}{" "}
-          / gram
-        </p>
-        <p>
+        <div className="price-grid">
+          <div className="price-row">
+            <span className="metal-label">Gold:</span>
+            <span className="price-units">
+              {formatMoney(prices.goldPerGram, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / gram{" | "}
+              {formatMoney(prices.goldPerOunce, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / oz{" | "}
+              {formatMoney(prices.goldPerTola, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / tola
+            </span>
+          </div>
+          <div className="price-row">
+            <span className="metal-label">Silver:</span>
+            <span className="price-units">
+              {formatMoney(prices.silverPerGram, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / gram{" | "}
+              {formatMoney(prices.silverPerOunce, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / oz{" | "}
+              {formatMoney(prices.silverPerTola, currency, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} / tola
+            </span>
+          </div>
+        </div>
+        <p className="price-source">
           Source: {prices.source}
           {isLoadingPrices ? " (loading latest...)" : ""}
           {prices.fallback ? " (fallback values in use)" : ""}

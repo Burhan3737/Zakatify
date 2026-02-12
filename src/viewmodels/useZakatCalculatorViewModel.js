@@ -80,11 +80,18 @@ export function useZakatCalculatorViewModel() {
   const currency = formData.currency || DEFAULT_CURRENCY;
   const conversionRate = getRateForCurrency(exchangeRates.rates, currency);
 
+  const GRAMS_PER_TROY_OUNCE = 31.1034768;
+  const GRAMS_PER_TOLA = 11.6638;
+
   const prices = useMemo(
     () => ({
       ...metalPricesUsd,
       goldPerGram: metalPricesUsd.goldPerGram * conversionRate,
       silverPerGram: metalPricesUsd.silverPerGram * conversionRate,
+      goldPerOunce: metalPricesUsd.goldPerGram * GRAMS_PER_TROY_OUNCE * conversionRate,
+      silverPerOunce: metalPricesUsd.silverPerGram * GRAMS_PER_TROY_OUNCE * conversionRate,
+      goldPerTola: metalPricesUsd.goldPerGram * GRAMS_PER_TOLA * conversionRate,
+      silverPerTola: metalPricesUsd.silverPerGram * GRAMS_PER_TOLA * conversionRate,
       currency,
       conversionRateSource: exchangeRates.source,
       conversionRateFallback: exchangeRates.fallback,

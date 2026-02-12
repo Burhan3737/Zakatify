@@ -261,6 +261,37 @@ p {
   background: #fff;
 }
 
+.price-grid {
+  margin: 0.6rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.metal-label {
+  font-weight: 600;
+  color: var(--text);
+  min-width: 4rem;
+}
+
+.price-units {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.price-source {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 .status-above {
   color: var(--above);
 }
