@@ -11,10 +11,12 @@ export function StepIndicator({ currentStep, onStepSelect }) {
         <button
           key={step.id}
           type="button"
-          className={`step-chip ${currentStep === step.id ? "active" : ""}`}
+          className={`step-chip ${currentStep === step.id ? "active" : ""} ${currentStep > step.id ? "completed" : ""}`}
           onClick={() => onStepSelect(step.id)}
+          data-step={step.id}
+          aria-current={currentStep === step.id ? "step" : undefined}
         >
-          <span>{step.id}</span> {step.label}
+          {step.label}
         </button>
       ))}
     </div>

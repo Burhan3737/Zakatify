@@ -1,7 +1,12 @@
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { ZakatCalculatorView } from "./views/ZakatCalculatorView";
 
 function App() {
-  return <ZakatCalculatorView />;
+  return (
+    <ThemeProvider>
+      <ZakatCalculatorView />
+    </ThemeProvider>
+  );
 }
 
 export default App;

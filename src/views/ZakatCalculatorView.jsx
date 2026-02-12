@@ -1,6 +1,7 @@
 import { CURRENCY_OPTIONS } from "../models/zakatModel";
 import { getCurrencySymbol } from "../utils/currency";
 import { StepIndicator } from "../components/StepIndicator";
+import { ThemeSelector } from "../components/ThemeSelector";
 import { useZakatCalculatorViewModel } from "../viewmodels/useZakatCalculatorViewModel";
 import { AssetsStepView } from "./steps/AssetsStepView";
 import { LiabilitiesStepView } from "./steps/LiabilitiesStepView";
@@ -20,6 +21,7 @@ export function ZakatCalculatorView() {
           upgrades.
         </p>
         <div className="hero-toolbar">
+          <ThemeSelector />
           <label className="currency-select" htmlFor="app-currency">
             <span>App Currency</span>
             <select
