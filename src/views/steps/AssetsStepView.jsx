@@ -1,14 +1,86 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { InputField } from "../../components/InputField";
 
-function AccordionSection({ title, children, defaultOpen = false }) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
+const ACCORDION_STORAGE_KEY = "zakatify_accordion_state_v1";
+
+// Custom hook for accordion state with localStorage persistence
+function useAccordionState() {
+  const [openSections, setOpenSections] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ACCORDION_STORAGE_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to load accordion state:", e);
+    }
+    // Default: all sections closed
+    return {
+      cashBank: false,
+      gold: false,
+      silver: false,
+      preciousStones: false,
+      investments: false,
+      property: false,
+      business: false,
+      partnership: false,
+    };
+  });
+
+  // Persist to localStorage whenever state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(ACCORDION_STORAGE_KEY, JSON.stringify(openSections));
+    } catch (e) {
+      console.error("Failed to save accordion state:", e);
+    }
+  }, [openSections]);
+
+  const toggleSection = (sectionKey) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
+  const isOpen = (sectionKey) => openSections[sectionKey] ?? false;
+
+  const expandAll = () => {
+    setOpenSections({
+      cashBank: true,
+      gold: true,
+      silver: true,
+      preciousStones: true,
+      investments: true,
+      property: true,
+      business: true,
+      partnership: true,
+    });
+  };
+
+  const collapseAll = () => {
+    setOpenSections({
+      cashBank: false,
+      gold: false,
+      silver: false,
+      preciousStones: false,
+      investments: false,
+      property: false,
+      business: false,
+      partnership: false,
+    });
+  };
+
+  return { isOpen, toggleSection, expandAll, collapseAll };
+}
+
+function AccordionSection({ title, children, sectionKey, isOpen, onToggle }) {
   return (
     <details className="accordion" open={isOpen}>
       <summary
         onClick={(e) => {
           e.preventDefault();
-          setIsOpen(!isOpen);
+          onToggle(sectionKey);
         }}
       >
         <span>{title}</span>
@@ -132,6 +204,8 @@ function PartnershipSection({ assets, updateAsset, currencySymbol }) {
 }
 
 export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
+  const { isOpen, toggleSection, expandAll, collapseAll } = useAccordionState();
+
   return (
     <section className="panel">
       <h2>Step 1: Enter Zakatable Assets</h2>
@@ -139,7 +213,21 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         Add values you currently own and can access for this zakat period.
       </p>
 
-      <AccordionSection title="Cash & Bank">
+      <div className="accordion-controls">
+        <button type="button" className="btn btn-small" onClick={expandAll}>
+          Expand All
+        </button>
+        <button type="button" className="btn btn-small" onClick={collapseAll}>
+          Collapse All
+        </button>
+      </div>
+
+      <AccordionSection
+        title="Cash & Bank"
+        sectionKey="cashBank"
+        isOpen={isOpen("cashBank")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="cash-savings"
           label="Savings Account"
@@ -163,7 +251,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Gold">
+      <AccordionSection
+        title="Gold"
+        sectionKey="gold"
+        isOpen={isOpen("gold")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="gold-24k"
           label="24 Carat Gold / Jewelry"
@@ -194,7 +287,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Silver">
+      <AccordionSection
+        title="Silver"
+        sectionKey="silver"
+        isOpen={isOpen("silver")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="silver-utensils"
           label="Household Silver Utensils"
@@ -218,7 +316,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Precious Stones">
+      <AccordionSection
+        title="Precious Stones"
+        sectionKey="preciousStones"
+        isOpen={isOpen("preciousStones")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="precious-stones"
           label="Diamonds, Rubies, etc. (Market Value)"
@@ -228,7 +331,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Investments, Loans & Funds">
+      <AccordionSection
+        title="Investments, Loans & Funds"
+        sectionKey="investments"
+        isOpen={isOpen("investments")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="loans-receivable"
           label="Loans Receivable from Friends/Relatives"
@@ -287,7 +395,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Landed Property">
+      <AccordionSection
+        title="Landed Property"
+        sectionKey="property"
+        isOpen={isOpen("property")}
+        onToggle={toggleSection}
+      >
         <InputField
           id="landed-property"
           label="Property held as Investment / Business"
@@ -297,7 +410,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Business Assets">
+      <AccordionSection
+        title="Business Assets"
+        sectionKey="business"
+        isOpen={isOpen("business")}
+        onToggle={toggleSection}
+      >
         <BusinessAssetsSection
           assets={assets}
           updateAsset={updateAsset}
@@ -305,7 +423,12 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         />
       </AccordionSection>
 
-      <AccordionSection title="Partnership Firm">
+      <AccordionSection
+        title="Partnership Firm"
+        sectionKey="partnership"
+        isOpen={isOpen("partnership")}
+        onToggle={toggleSection}
+      >
         <PartnershipSection
           assets={assets}
           updateAsset={updateAsset}
