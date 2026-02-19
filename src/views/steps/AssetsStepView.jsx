@@ -1,4 +1,135 @@
+import { useState, useMemo } from "react";
 import { InputField } from "../../components/InputField";
+
+function AccordionSection({ title, children, defaultOpen = false }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <details className="accordion" open={isOpen}>
+      <summary
+        onClick={(e) => {
+          e.preventDefault();
+          setIsOpen(!isOpen);
+        }}
+      >
+        <span>{title}</span>
+        <span className="accordion-icon">{isOpen ? "−" : "+"}</span>
+      </summary>
+      {isOpen && <div className="accordion-content">{children}</div>}
+    </details>
+  );
+}
+
+function toAmount(value) {
+  const parsed = Number.parseFloat(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  return parsed;
+}
+
+function formatCurrency(value, symbol) {
+  return `${symbol}${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function BusinessAssetsSection({ assets, updateAsset, currencySymbol }) {
+  const total = useMemo(() => {
+    const stock = toAmount(assets.businessStock);
+    const damaged = toAmount(assets.businessDamagedStock);
+    const creditSales = toAmount(assets.businessCreditSales);
+    const payables = toAmount(assets.businessPayables);
+    const badDebts = toAmount(assets.businessBadDebts);
+    return Math.max(0, stock + damaged + creditSales - (payables + badDebts));
+  }, [assets]);
+
+  return (
+    <div className="subsection">
+      <InputField
+        id="business-stock"
+        label="Saleable Stock"
+        value={assets.businessStock}
+        onChange={(v) => updateAsset("businessStock", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="business-damaged"
+        label="Damaged / Dead Stock"
+        value={assets.businessDamagedStock}
+        onChange={(v) => updateAsset("businessDamagedStock", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="business-credit-sales"
+        label="Receivable from Credit Sales"
+        value={assets.businessCreditSales}
+        onChange={(v) => updateAsset("businessCreditSales", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="business-payables"
+        label="LESS: Payable to Suppliers"
+        value={assets.businessPayables}
+        onChange={(v) => updateAsset("businessPayables", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="business-bad-debts"
+        label="LESS: Bad Debts"
+        value={assets.businessBadDebts}
+        onChange={(v) => updateAsset("businessBadDebts", v)}
+        prefix={currencySymbol}
+      />
+      <div className="calculated-total">
+        <span>Total Business Value:</span>
+        <strong>{formatCurrency(total, currencySymbol)}</strong>
+      </div>
+    </div>
+  );
+}
+
+function PartnershipSection({ assets, updateAsset, currencySymbol }) {
+  const total = useMemo(() => {
+    const capital = toAmount(assets.partnershipCapital);
+    const loans = toAmount(assets.partnershipLoans);
+    const withdrawals = toAmount(assets.partnershipWithdrawals);
+    const profit = toAmount(assets.partnershipAccumulatedProfit);
+    return Math.max(0, capital + loans - withdrawals + profit);
+  }, [assets]);
+
+  return (
+    <div className="subsection">
+      <InputField
+        id="partnership-capital"
+        label="Capital Balance (Last Balance Sheet)"
+        value={assets.partnershipCapital}
+        onChange={(v) => updateAsset("partnershipCapital", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="partnership-loans"
+        label="Loans Advanced to Firm"
+        value={assets.partnershipLoans}
+        onChange={(v) => updateAsset("partnershipLoans", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="partnership-withdrawals"
+        label="LESS: Withdrawals this Year"
+        value={assets.partnershipWithdrawals}
+        onChange={(v) => updateAsset("partnershipWithdrawals", v)}
+        prefix={currencySymbol}
+      />
+      <InputField
+        id="partnership-profit"
+        label="Accumulated Profit (Estimate)"
+        value={assets.partnershipAccumulatedProfit}
+        onChange={(v) => updateAsset("partnershipAccumulatedProfit", v)}
+        prefix={currencySymbol}
+      />
+      <div className="calculated-total">
+        <span>Nett Partnership Worth:</span>
+        <strong>{formatCurrency(total, currencySymbol)}</strong>
+      </div>
+    </div>
+  );
+}
 
 export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
   return (
@@ -8,196 +139,179 @@ export function AssetsStepView({ assets, updateAsset, currencySymbol }) {
         Add values you currently own and can access for this zakat period.
       </p>
 
-      <div className="field-grid">
+      <AccordionSection title="Cash & Bank">
         <InputField
-          id="cash-bank"
-          label="Cash in Bank"
-          tooltip="Money in checking/savings accounts and digital wallets."
-          value={assets.cashBank}
-          onChange={(value) => updateAsset("cashBank", value)}
+          id="cash-savings"
+          label="Savings Account"
+          value={assets.cashSavings}
+          onChange={(v) => updateAsset("cashSavings", v)}
           prefix={currencySymbol}
         />
         <InputField
-          id="cash-on-hand"
-          label="Cash on Hand"
-          tooltip="Physical cash that you currently hold."
-          value={assets.cashOnHand}
-          onChange={(value) => updateAsset("cashOnHand", value)}
+          id="cash-current"
+          label="Current Account"
+          value={assets.cashCurrent}
+          onChange={(v) => updateAsset("cashCurrent", v)}
           prefix={currencySymbol}
         />
-      </div>
+        <InputField
+          id="cash-fixed"
+          label="Fixed Deposits"
+          value={assets.cashFixedDeposits}
+          onChange={(v) => updateAsset("cashFixedDeposits", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
 
-      <div className="sub-panel">
-        <h3>Gold</h3>
-        <p>
-          Enter gold as weight (grams, ounces, or tola) or value. This includes jewelry, bars, and
-          coins.
-        </p>
-        <div className="toggle-group">
-          <button
-            type="button"
-            className={assets.goldMode === "grams" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("goldMode", "grams")}
-          >
-            Grams
-          </button>
-          <button
-            type="button"
-            className={assets.goldMode === "ounce" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("goldMode", "ounce")}
-          >
-            Ounce
-          </button>
-          <button
-            type="button"
-            className={assets.goldMode === "tola" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("goldMode", "tola")}
-          >
-            Tola
-          </button>
-          <button
-            type="button"
-            className={assets.goldMode === "value" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("goldMode", "value")}
-          >
-            Value
-          </button>
-        </div>
-        {assets.goldMode === "grams" ? (
-          <InputField
-            id="gold-grams"
-            label="Gold Weight"
-            tooltip="Total pure gold weight in grams."
-            value={assets.goldGrams}
-            onChange={(value) => updateAsset("goldGrams", value)}
-            placeholder="0"
-            prefix="g"
-          />
-        ) : assets.goldMode === "ounce" ? (
-          <InputField
-            id="gold-ounce"
-            label="Gold Weight"
-            tooltip="Total pure gold weight in troy ounces."
-            value={assets.goldOunce}
-            onChange={(value) => updateAsset("goldOunce", value)}
-            placeholder="0"
-            prefix="oz"
-          />
-        ) : assets.goldMode === "tola" ? (
-          <InputField
-            id="gold-tola"
-            label="Gold Weight"
-            tooltip="Total pure gold weight in tola (1 tola ≈ 11.66 grams)."
-            value={assets.goldTola}
-            onChange={(value) => updateAsset("goldTola", value)}
-            placeholder="0"
-            prefix="tola"
-          />
-        ) : (
-          <InputField
-            id="gold-value"
-            label="Gold Value"
-            tooltip="Current market value of your gold holdings."
-            value={assets.goldValue}
-            onChange={(value) => updateAsset("goldValue", value)}
-            prefix={currencySymbol}
-          />
-        )}
-      </div>
-
-      <div className="sub-panel">
-        <h3>Silver</h3>
-        <p>Enter silver as weight (grams, ounces, or tola) or value. Includes jewelry and coins.</p>
-        <div className="toggle-group">
-          <button
-            type="button"
-            className={assets.silverMode === "grams" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("silverMode", "grams")}
-          >
-            Grams
-          </button>
-          <button
-            type="button"
-            className={assets.silverMode === "ounce" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("silverMode", "ounce")}
-          >
-            Ounce
-          </button>
-          <button
-            type="button"
-            className={assets.silverMode === "tola" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("silverMode", "tola")}
-          >
-            Tola
-          </button>
-          <button
-            type="button"
-            className={assets.silverMode === "value" ? "toggle active" : "toggle"}
-            onClick={() => updateAsset("silverMode", "value")}
-          >
-            Value
-          </button>
-        </div>
-        {assets.silverMode === "grams" ? (
-          <InputField
-            id="silver-grams"
-            label="Silver Weight"
-            tooltip="Total pure silver weight in grams."
-            value={assets.silverGrams}
-            onChange={(value) => updateAsset("silverGrams", value)}
-            placeholder="0"
-            prefix="g"
-          />
-        ) : assets.silverMode === "ounce" ? (
-          <InputField
-            id="silver-ounce"
-            label="Silver Weight"
-            tooltip="Total pure silver weight in troy ounces."
-            value={assets.silverOunce}
-            onChange={(value) => updateAsset("silverOunce", value)}
-            placeholder="0"
-            prefix="oz"
-          />
-        ) : assets.silverMode === "tola" ? (
-          <InputField
-            id="silver-tola"
-            label="Silver Weight"
-            tooltip="Total pure silver weight in tola (1 tola ≈ 11.66 grams)."
-            value={assets.silverTola}
-            onChange={(value) => updateAsset("silverTola", value)}
-            placeholder="0"
-            prefix="tola"
-          />
-        ) : (
-          <InputField
-            id="silver-value"
-            label="Silver Value"
-            tooltip="Current market value of your silver holdings."
-            value={assets.silverValue}
-            onChange={(value) => updateAsset("silverValue", value)}
-            prefix={currencySymbol}
-          />
-        )}
-      </div>
-
-      <div className="field-grid">
+      <AccordionSection title="Gold">
         <InputField
-          id="investments-crypto"
-          label="Investments / Crypto"
-          tooltip="Zakatable investment value including stocks and crypto."
-          value={assets.investmentsCrypto}
-          onChange={(value) => updateAsset("investmentsCrypto", value)}
+          id="gold-24k"
+          label="24 Carat Gold / Jewelry"
+          value={assets.gold24k}
+          onChange={(v) => updateAsset("gold24k", v)}
           prefix={currencySymbol}
         />
         <InputField
-          id="receivables"
-          label="Money Owed to You"
-          tooltip="Receivables you reasonably expect to collect."
-          value={assets.receivables}
-          onChange={(value) => updateAsset("receivables", value)}
+          id="gold-22k"
+          label="22 Carat Gold / Jewelry"
+          value={assets.gold22k}
+          onChange={(v) => updateAsset("gold22k", v)}
           prefix={currencySymbol}
         />
-      </div>
+        <InputField
+          id="gold-18k"
+          label="18 Carat Gold / Jewelry"
+          value={assets.gold18k}
+          onChange={(v) => updateAsset("gold18k", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="gold-other"
+          label="Other Gold Valuables"
+          value={assets.goldOther}
+          onChange={(v) => updateAsset("goldOther", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Silver">
+        <InputField
+          id="silver-utensils"
+          label="Household Silver Utensils"
+          value={assets.silverUtensils}
+          onChange={(v) => updateAsset("silverUtensils", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="silver-artifacts"
+          label="Silver Artifacts"
+          value={assets.silverArtifacts}
+          onChange={(v) => updateAsset("silverArtifacts", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="silver-jewelry"
+          label="Silver Jewelry"
+          value={assets.silverJewelry}
+          onChange={(v) => updateAsset("silverJewelry", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Precious Stones">
+        <InputField
+          id="precious-stones"
+          label="Diamonds, Rubies, etc. (Market Value)"
+          value={assets.preciousStones}
+          onChange={(v) => updateAsset("preciousStones", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Investments, Loans & Funds">
+        <InputField
+          id="loans-receivable"
+          label="Loans Receivable from Friends/Relatives"
+          value={assets.loansReceivable}
+          onChange={(v) => updateAsset("loansReceivable", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="govt-bonds"
+          label="Government Bonds"
+          value={assets.govtBonds}
+          onChange={(v) => updateAsset("govtBonds", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="provident-fund"
+          label="Provident Fund (to date)"
+          value={assets.providentFund}
+          onChange={(v) => updateAsset("providentFund", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="insurance-bonus"
+          label="Insurance Premiums (including bonus)"
+          value={assets.insuranceBonus}
+          onChange={(v) => updateAsset("insuranceBonus", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="shares-value"
+          label="Shares / Stocks (with dividends)"
+          value={assets.sharesValue}
+          onChange={(v) => updateAsset("sharesValue", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="govt-securities"
+          label="Government Securities / ADRs"
+          value={assets.govtSecurities}
+          onChange={(v) => updateAsset("govtSecurities", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="private-chits"
+          label="Private Chits / Funds"
+          value={assets.privateChitsFunds}
+          onChange={(v) => updateAsset("privateChitsFunds", v)}
+          prefix={currencySymbol}
+        />
+        <InputField
+          id="other-wealth"
+          label="Other Sources of Wealth"
+          value={assets.otherWealth}
+          onChange={(v) => updateAsset("otherWealth", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Landed Property">
+        <InputField
+          id="landed-property"
+          label="Property held as Investment / Business"
+          value={assets.landedProperty}
+          onChange={(v) => updateAsset("landedProperty", v)}
+          prefix={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Business Assets">
+        <BusinessAssetsSection
+          assets={assets}
+          updateAsset={updateAsset}
+          currencySymbol={currencySymbol}
+        />
+      </AccordionSection>
+
+      <AccordionSection title="Partnership Firm">
+        <PartnershipSection
+          assets={assets}
+          updateAsset={updateAsset}
+          currencySymbol={currencySymbol}
+        />
+      </AccordionSection>
     </section>
   );
 }

@@ -14,12 +14,17 @@ export function ZakatCalculatorView() {
   return (
     <main className="app-shell">
       <header className="hero">
-        <p className="hero-eyebrow">Phase 1 MVP</p>
-        <h1>Zakat Calculator for Individuals</h1>
+        <p className="hero-eyebrow">Fast • Guided • Stress-Free</p>
+        <h1>Zakatify</h1>
         <p>
-          A guided zakat workflow with modular MVVM architecture for future
-          upgrades.
+          Take the guesswork out of your zakat. Follow a simple guided flow to
+          calculate what you owe in minutes — clear, organized, and easy to use.
         </p>
+
+        <span className="hero-disclaimer">
+          Disclaimer: Please confirm your zakat obligations with a qualified
+          scholar or trusted authority before making payment.
+        </span>
         <div className="hero-toolbar">
           <ThemeSelector />
           <label className="currency-select" htmlFor="app-currency">

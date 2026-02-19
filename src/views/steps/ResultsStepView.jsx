@@ -63,33 +63,67 @@ export function ResultsStepView({
       </article>
 
       <article className="breakdown-card">
-        <h3>Breakdown</h3>
+        <h3>Assets Breakdown</h3>
         <dl className="breakdown">
           <div>
-            <dt>Cash (bank + on-hand)</dt>
+            <dt>Cash & Bank (Savings + Current + Fixed)</dt>
             <dd>{formatMoney(result.breakdown.cashTotal, currency)}</dd>
           </div>
           <div>
-            <dt>Gold</dt>
+            <dt>Gold (24K + 22K + 18K + Other)</dt>
             <dd>{formatMoney(result.breakdown.goldTotal, currency)}</dd>
           </div>
           <div>
-            <dt>Silver</dt>
+            <dt>Silver (Utensils + Artifacts + Jewelry)</dt>
             <dd>{formatMoney(result.breakdown.silverTotal, currency)}</dd>
           </div>
           <div>
-            <dt>Investments / Crypto</dt>
-            <dd>{formatMoney(result.breakdown.investmentsCrypto, currency)}</dd>
+            <dt>Precious Stones</dt>
+            <dd>{formatMoney(result.breakdown.preciousStones, currency)}</dd>
           </div>
           <div>
-            <dt>Receivables</dt>
-            <dd>{formatMoney(result.breakdown.receivables, currency)}</dd>
+            <dt>Investments, Loans & Funds</dt>
+            <dd>{formatMoney(result.breakdown.investmentsTotal, currency)}</dd>
           </div>
           <div>
+            <dt>Landed Property</dt>
+            <dd>{formatMoney(result.breakdown.landedProperty, currency)}</dd>
+          </div>
+          <div>
+            <dt>Business Assets</dt>
+            <dd>{formatMoney(result.breakdown.businessTotal, currency)}</dd>
+          </div>
+          <div>
+            <dt>Partnership Firms</dt>
+            <dd>{formatMoney(result.breakdown.partnershipTotal, currency)}</dd>
+          </div>
+          <div className="total-row">
             <dt>Total Assets</dt>
             <dd>{formatMoney(result.breakdown.totalAssets, currency)}</dd>
           </div>
+        </dl>
+      </article>
+
+      <article className="breakdown-card">
+        <h3>Liabilities Breakdown</h3>
+        <dl className="breakdown">
           <div>
+            <dt>Short-Term Debts</dt>
+            <dd>{formatMoney(result.breakdown.shortTermDebts, currency)}</dd>
+          </div>
+          <div>
+            <dt>Loans from Friends/Relatives</dt>
+            <dd>{formatMoney(result.breakdown.loansFriendsRelatives, currency)}</dd>
+          </div>
+          <div>
+            <dt>Loans from Banks/Institutions</dt>
+            <dd>{formatMoney(result.breakdown.loansBanksInstitutions, currency)}</dd>
+          </div>
+          <div>
+            <dt>Tax Payable</dt>
+            <dd>{formatMoney(result.breakdown.taxPayable, currency)}</dd>
+          </div>
+          <div className="total-row">
             <dt>Total Liabilities</dt>
             <dd>{formatMoney(result.breakdown.totalLiabilities, currency)}</dd>
           </div>
