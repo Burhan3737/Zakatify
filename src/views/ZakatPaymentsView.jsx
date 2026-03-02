@@ -65,13 +65,17 @@ export function ZakatPaymentsView({ zakatDue, currency }) {
   return (
     <div className="app-shell">
       <header className="hero">
-        <h1>💰 Zakat Payments</h1>
-        <p className="panel-subtitle">
+        <p className="hero-eyebrow">Track • Manage • Complete</p>
+        <h1>Zakat Payments</h1>
+        <p>
           Track your zakat payments and monitor your remaining balance.
         </p>
       </header>
 
       {/* Balance Summary Card */}
+      <section className="panel">
+      <h2>Balance Overview</h2>
+      <p className="panel-subtitle">Your zakat obligation and payment progress at a glance.</p>
       <div className="balance-summary">
         {/* Zakat Due Section */}
         <div className="balance-row zakat-due-row">
@@ -192,11 +196,13 @@ export function ZakatPaymentsView({ zakatDue, currency }) {
           </div>
         )}
       </div>
+      </section>
 
       {/* Add Payment Form */}
       {!isComplete && (
-        <form className="payment-form" onSubmit={handleAddPayment}>
-          <h3>Add New Payment</h3>
+        <form className="panel payment-form" onSubmit={handleAddPayment}>
+          <h2>Add New Payment</h2>
+          <p className="panel-subtitle">Record a zakat payment you have made.</p>
 
           {formErrors.length > 0 && (
             <div className="form-errors">
@@ -269,9 +275,9 @@ export function ZakatPaymentsView({ zakatDue, currency }) {
       )}
 
       {/* Payment History */}
-      <div className="payment-history">
+      <section className="panel payment-history">
         <div className="payment-history-header">
-          <h3>📋 Payment History ({payments.length})</h3>
+          <h2>📋 Payment History ({payments.length})</h2>
           {payments.length > 0 && (
             <button className="btn-small btn-danger" onClick={confirmClearAll}>
               Clear All
@@ -304,7 +310,7 @@ export function ZakatPaymentsView({ zakatDue, currency }) {
             ))}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Reset for New Year */}
       {isComplete && (

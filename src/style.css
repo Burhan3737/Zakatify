@@ -436,10 +436,10 @@ p {
 }
 
 .hero-disclaimer {
-  font-size: var(--text-sm);               /* larger for readability */
-  color: var(--above);                     /* use status color for emphasis */
-  background: var(--surface-elevated);     /* subtle elevated background */
-  border-left: 4px solid var(--above);     /* prominent visual cue */
+  font-size: var(--text-sm); /* larger for readability */
+  color: var(--above); /* use status color for emphasis */
+  background: var(--surface-elevated); /* subtle elevated background */
+  border-left: 4px solid var(--above); /* prominent visual cue */
   padding: var(--space-3) var(--space-4);
   margin-top: var(--space-4);
   line-height: 1.6;
@@ -1943,14 +1943,9 @@ select.field-input:focus,
   margin: 0 auto;
 }
 
-/* Balance Summary Card */
+/* Balance Summary Card - now inside a .panel wrapper */
 .balance-summary {
-  margin-top: var(--space-6);
-  padding: var(--space-6);
-  background: var(--surface-elevated);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
+  margin-top: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -1962,10 +1957,6 @@ select.field-input:focus,
   align-items: center;
   padding: var(--space-3) 0;
   border-bottom: 1px dashed var(--line-subtle);
-}
-
-.balance-row:last-of-type {
-  border-bottom: none;
 }
 
 .balance-highlight {
@@ -2123,18 +2114,9 @@ select.field-input:focus,
   margin-top: var(--space-5);
 }
 
-/* Payment Form */
-.payment-form {
-  margin-top: var(--space-8);
-  padding: var(--space-6);
-  background: var(--surface-elevated);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-}
-
-.payment-form h3 {
-  margin-bottom: var(--space-5);
-  color: var(--ink);
+/* Payment Form - .panel class provides card styling */
+.payment-form .payment-form-grid {
+  margin-top: var(--space-5);
 }
 
 .payment-form-grid {
@@ -2171,10 +2153,7 @@ select.field-input:focus,
   font-weight: 600;
 }
 
-/* Payment History */
-.payment-history {
-  margin-top: var(--space-8);
-}
+/* Payment History - .panel class provides card styling */
 
 .payment-history-header {
   display: flex;
@@ -2183,10 +2162,6 @@ select.field-input:focus,
   margin-bottom: var(--space-4);
   padding-bottom: var(--space-3);
   border-bottom: 2px solid var(--line);
-}
-
-.payment-history-header h3 {
-  color: var(--ink);
 }
 
 .btn-small {
