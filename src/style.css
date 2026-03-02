@@ -7,33 +7,34 @@
 
 /* ============================================
    BASE THEME: SAHARA (Default Light)
+   Warm sand, sage green, golden accents
    ============================================ */
 :root {
   /* Core Colors */
-  --bg: #f4efe2;
-  --surface: #fffdf7;
+  --bg: #f5ede0;
+  --surface: #fffdf8;
   --surface-elevated: #ffffff;
-  --surface-hover: #f8f6f0;
-  --ink: #1f2c23;
-  --ink-secondary: #3d4a42;
-  --muted: #5d665f;
+  --surface-hover: #ebe5d8;
+  --ink: #2c2618;
+  --ink-secondary: #4a4232;
+  --muted: #6b6052;
 
   /* Brand Colors */
   --brand: #0d8b68;
-  --brand-ink: #0c5f49;
+  --brand-ink: #0a6a52;
   --brand-hover: #0a7a5a;
-  --brand-light: #e8f6ef;
+  --brand-light: #e6f3ed;
   --brand-alpha: rgba(13, 139, 104, 0.1);
 
   /* Accent Colors */
-  --accent: #d4b06a;
+  --accent: #c9a030;
   --accent-light: #f5ecd8;
-  --accent-alpha: rgba(212, 176, 106, 0.15);
+  --accent-alpha: rgba(201, 160, 48, 0.15);
 
   /* Lines & Borders */
-  --line: #dde3d7;
-  --line-subtle: #e8ede4;
-  --line-strong: #c8d0c2;
+  --line: #d8d0c0;
+  --line-subtle: #e5ddd0;
+  --line-strong: #c5bda8;
 
   /* Status Colors */
   --above: #14805f;
@@ -47,7 +48,7 @@
   --selected-bg: rgba(13, 139, 104, 0.08);
 
   /* Shadows */
-  --shadow-color: 23, 36, 28;
+  --shadow-color: 44, 38, 24;
   --shadow-sm: 0 1px 2px rgba(var(--shadow-color), 0.05);
   --shadow-md: 0 4px 16px rgba(var(--shadow-color), 0.06);
   --shadow-lg: 0 8px 32px rgba(var(--shadow-color), 0.1);
@@ -93,20 +94,21 @@
 
 /* ============================================
    THEME: MOSQUE GREEN
+   Ivory, deep forest green, rich gold
    ============================================ */
 [data-theme="mosque"] {
-  --bg: #f8f6f0;
+  --bg: #fafaf5;
   --surface: #ffffff;
-  --surface-elevated: #fafbf8;
-  --surface-hover: #f2f4ee;
-  --ink: #1a2f1d;
-  --ink-secondary: #2d4a33;
-  --muted: #5a6b5d;
-  --brand: #1a5f4a;
-  --brand-ink: #134a39;
-  --brand-hover: #14563f;
-  --brand-light: #e3f0eb;
-  --brand-alpha: rgba(26, 95, 74, 0.1);
+  --surface-elevated: #fdfdfb;
+  --surface-hover: #f3f3eb;
+  --ink: #1a261c;
+  --ink-secondary: #2d4030;
+  --muted: #5a6b5a;
+  --brand: #145c3a;
+  --brand-ink: #0f4a30;
+  --brand-hover: #115435;
+  --brand-light: #e3f0e9;
+  --brand-alpha: rgba(20, 92, 58, 0.1);
   --accent: #c9a857;
   --accent-light: #f3ebd6;
   --accent-alpha: rgba(201, 168, 87, 0.15);
@@ -116,11 +118,11 @@
   --above: #1a7a5e;
   --close: #c99626;
   --below: #a83326;
-  --focus-ring: rgba(26, 95, 74, 0.4);
-  --hover-bg: rgba(26, 95, 74, 0.05);
-  --active-bg: rgba(26, 95, 74, 0.1);
-  --selected-bg: rgba(26, 95, 74, 0.08);
-  --shadow-color: 22, 41, 26;
+  --focus-ring: rgba(20, 92, 58, 0.4);
+  --hover-bg: rgba(20, 92, 58, 0.05);
+  --active-bg: rgba(20, 92, 58, 0.1);
+  --selected-bg: rgba(20, 92, 58, 0.08);
+  --shadow-color: 26, 38, 28;
   --shadow-sm: 0 1px 2px rgba(var(--shadow-color), 0.05);
   --shadow-md: 0 4px 16px rgba(var(--shadow-color), 0.06);
   --shadow-lg: 0 8px 32px rgba(var(--shadow-color), 0.1);
@@ -129,29 +131,30 @@
 
 /* ============================================
    THEME: MARRAKESH
+   Sandy beige, teal, burnt orange
    ============================================ */
 [data-theme="marrakesh"] {
-  --bg: #faf6f0;
-  --surface: #fffcf7;
+  --bg: #f5efe6;
+  --surface: #fffcf8;
   --surface-elevated: #ffffff;
-  --surface-hover: #f5f1eb;
+  --surface-hover: #ebe5dc;
   --ink: #2d2418;
   --ink-secondary: #4a3d2b;
-  --muted: #6b6152;
+  --muted: #6b6052;
   --brand: #2d8a7a;
-  --brand-ink: #1f6357;
-  --brand-hover: #267a6b;
-  --brand-light: #e3f5f2;
+  --brand-ink: #1f6e62;
+  --brand-hover: #237a6b;
+  --brand-light: #e3f2ef;
   --brand-alpha: rgba(45, 138, 122, 0.1);
-  --accent: #d4855a;
-  --accent-light: #f5e0d6;
-  --accent-alpha: rgba(212, 133, 90, 0.15);
-  --line: #e8e0d5;
-  --line-subtle: #f0ebe2;
-  --line-strong: #d8d0c5;
+  --accent: #d4603a;
+  --accent-light: #f9e5dc;
+  --accent-alpha: rgba(212, 96, 58, 0.15);
+  --line: #e0d8cc;
+  --line-subtle: #eae2d6;
+  --line-strong: #d0c8bc;
   --above: #2a9d8a;
-  --close: #c97848;
-  --below: #b8543d;
+  --close: #c96a30;
+  --below: #b84a30;
   --focus-ring: rgba(45, 138, 122, 0.4);
   --hover-bg: rgba(45, 138, 122, 0.05);
   --active-bg: rgba(45, 138, 122, 0.1);
@@ -165,11 +168,12 @@
 
 /* ============================================
    THEME: NIGHT MODE (Dark)
+   Deep indigo, vibrant teal, warm gold
    ============================================ */
 [data-theme="night"] {
-  --bg: #0f1729;
-  --surface: #1a2332;
-  --surface-elevated: #232d3f;
+  --bg: #0f1424;
+  --surface: #1a2236;
+  --surface-elevated: #242d44;
   --surface-hover: #252f42;
   --ink: #e8ecea;
   --ink-secondary: #c5cbc6;
@@ -201,26 +205,27 @@
 
 /* ============================================
    THEME: RAMADAN BLUE (Dark)
+   Deep plum, celestial blue, silver
    ============================================ */
 [data-theme="ramadan"] {
-  --bg: #0a1628;
-  --surface: #101c2e;
-  --surface-elevated: #182538;
-  --surface-hover: #1e2c42;
-  --ink: #e8ecf0;
-  --ink-secondary: #c5cdd5;
-  --muted: #8a95a5;
+  --bg: #0c0812;
+  --surface: #15101d;
+  --surface-elevated: #1e1628;
+  --surface-hover: #1f1a26;
+  --ink: #f0eef4;
+  --ink-secondary: #c9c5cf;
+  --muted: #8a8495;
   --brand: #60a5fa;
   --brand-ink: #93c5fd;
   --brand-hover: #7db8fc;
   --brand-light: rgba(96, 165, 250, 0.15);
   --brand-alpha: rgba(96, 165, 250, 0.2);
-  --accent: #c0c0c0;
-  --accent-light: rgba(192, 192, 192, 0.15);
-  --accent-alpha: rgba(192, 192, 192, 0.2);
-  --line: #1e2d42;
-  --line-subtle: #182538;
-  --line-strong: #2a3d54;
+  --accent: #e5e7eb;
+  --accent-light: rgba(229, 231, 235, 0.12);
+  --accent-alpha: rgba(229, 231, 235, 0.18);
+  --line: #2a2438;
+  --line-subtle: #1e1628;
+  --line-strong: #3a3248;
   --above: #60a5fa;
   --close: #fbbf24;
   --below: #f87171;
@@ -237,12 +242,13 @@
 
 /* ============================================
    THEME: DESERT ROSE
+   Dusty rose, deep coral, warm peach
    ============================================ */
 [data-theme="desertRose"] {
-  --bg: #faf6f4;
-  --surface: #fffdfb;
+  --bg: #f5ebe8;
+  --surface: #fffaf8;
   --surface-elevated: #ffffff;
-  --surface-hover: #f5f0ed;
+  --surface-hover: #ede3df;
   --ink: #2d1f1f;
   --ink-secondary: #4a3535;
   --muted: #7a6565;
@@ -254,9 +260,9 @@
   --accent: #e8a87c;
   --accent-light: #fce8dc;
   --accent-alpha: rgba(232, 168, 124, 0.15);
-  --line: #ebe0db;
-  --line-subtle: #f2e9e4;
-  --line-strong: #dccfc8;
+  --line: #e5dbd7;
+  --line-subtle: #efe8e4;
+  --line-strong: #d5ccc6;
   --above: #2d8a6b;
   --close: #d97706;
   --below: #c75b39;

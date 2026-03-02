@@ -4,42 +4,42 @@ export const THEMES = {
   sahara: {
     id: "sahara",
     name: "Sahara",
-    description: "Warm sand and sage green",
+    description: "Warm sand, sage green, golden accents",
     icon: "☀️",
     isDark: false,
   },
   mosque: {
     id: "mosque",
     name: "Mosque Green",
-    description: "Deep emerald and gold",
+    description: "Ivory, deep forest green, rich gold",
     icon: "🕌",
     isDark: false,
   },
   marrakesh: {
     id: "marrakesh",
     name: "Marrakesh",
-    description: "Terracotta and turquoise",
+    description: "Sandy beige, teal, burnt orange",
     icon: "🏺",
     isDark: false,
   },
   night: {
     id: "night",
     name: "Night Mode",
-    description: "Deep navy and soft green",
+    description: "Deep indigo, vibrant teal, warm gold",
     icon: "🌙",
     isDark: true,
   },
   ramadan: {
     id: "ramadan",
     name: "Ramadan Blue",
-    description: "Midnight blue and silver",
+    description: "Deep plum, celestial blue, silver",
     icon: "✨",
     isDark: true,
   },
   desertRose: {
     id: "desertRose",
     name: "Desert Rose",
-    description: "Soft pink and coral",
+    description: "Dusty rose, deep coral, warm peach",
     icon: "🌸",
     isDark: false,
   },
@@ -85,12 +85,12 @@ export function ThemeProvider({ children }) {
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       const themeColors = {
-        sahara: "#f4efe2",
-        mosque: "#f8f6f0",
-        marrakesh: "#faf6f0",
-        night: "#0f1729",
-        ramadan: "#0a1628",
-        desertRose: "#faf6f4",
+        sahara: "#f5ede0",
+        mosque: "#fafaf5",
+        marrakesh: "#f5efe6",
+        night: "#0f1424",
+        ramadan: "#0c0812",
+        desertRose: "#f5ebe8",
       };
       metaThemeColor.setAttribute("content", themeColors[currentThemeId]);
     }

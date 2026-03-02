@@ -23,14 +23,46 @@ Zakatify uses a comprehensive theming system built on CSS Custom Properties (CSS
 
 ## Available Themes
 
-| Theme ID | Name | Icon | Mode | Description |
-|----------|------|------|------|-------------|
-| `sahara` | Sahara | ☀️ | Light | Warm sand backgrounds, sage green accents (default) |
-| `mosque` | Mosque Green | 🕌 | Light | Deep emerald, cream, gold highlights |
-| `marrakesh` | Marrakesh | 🏺 | Light | Terracotta, turquoise, sandy beige |
-| `night` | Night Mode | 🌙 | Dark | Deep navy, soft green, warm text |
-| `ramadan` | Ramadan Blue | ✨ | Dark | Midnight blue, silver accents |
-| `desertRose` | Desert Rose | 🌸 | Light | Soft pink, coral, cream backgrounds |
+| Theme ID | Name | Icon | Mode | Color Palette |
+|----------|------|------|------|---------------|
+| `sahara` | Sahara | ☀️ | Light | Warm sand, sage green, golden accents |
+| `mosque` | Mosque Green | 🕌 | Light | Ivory, deep forest green, rich gold |
+| `marrakesh` | Marrakesh | 🏺 | Light | Sandy beige, teal, burnt orange |
+| `night` | Night Mode | 🌙 | Dark | Deep indigo, vibrant teal, warm gold |
+| `ramadan` | Ramadan Blue | ✨ | Dark | Deep plum, celestial blue, silver |
+| `desertRose` | Desert Rose | 🌸 | Light | Dusty rose, deep coral, warm peach |
+
+## Theme Details
+
+### Sahara (Default)
+A warm, inviting desert palette with sandy backgrounds and sage green accents. The golden accent creates a sense of warmth and hospitality, perfect for everyday use.
+
+**Best for:** General use, welcoming interfaces
+
+### Mosque Green
+An elegant, formal palette inspired by traditional Islamic architecture. Deep forest greens paired with ivory and rich gold create a dignified, refined aesthetic.
+
+**Best for:** Professional settings, formal applications
+
+### Marrakesh
+A vibrant, bazaar-inspired theme with earthy terracotta tones and bold teal accents. The burnt orange brings energy and warmth reminiscent of Moroccan markets.
+
+**Best for:** Creative applications, energetic interfaces
+
+### Night Mode
+A rich dark theme with deep indigo backgrounds. The vibrant teal brand color pops against the dark background, with warm gold accents adding sophistication.
+
+**Best for:** Low-light environments, evening use
+
+### Ramadan Blue
+A spiritual, ethereal dark theme inspired by the night sky during Ramadan. Deep plum backgrounds with celestial blue and silver create a serene, contemplative atmosphere.
+
+**Best for:** Evening use, spiritual/religious applications
+
+### Desert Rose
+A soft, romantic palette with dusty rose backgrounds and warm coral accents. The gentle coloring creates a calming, nurturing feel.
+
+**Best for:** Gentle, approachable interfaces
 
 ## Using Themes in New Components
 
@@ -60,12 +92,12 @@ Always use CSS variables instead of hardcoded colors:
 
 | Variable | Usage | Light Example | Dark Example |
 |----------|-------|---------------|--------------|
-| `--bg` | Page background | `#f4efe2` (warm sand) | `#0f1729` (deep navy) |
-| `--surface` | Card/panel backgrounds | `#fffdf7` (cream) | `#1a2332` (dark surface) |
-| `--surface-elevated` | Elevated cards, modals | `#ffffff` | `#232d3f` |
-| `--ink` | Primary text | `#1f2c23` (dark green) | `#e8ecea` (soft white) |
-| `--ink-secondary` | Secondary text | `#3d4a42` | `#a8b0a8` |
-| `--muted` | Muted/helper text | `#5d665f` | `#7a847a` |
+| `--bg` | Page background | `#f5ede0` (warm sand) | `#0f1424` (deep indigo) |
+| `--surface` | Card/panel backgrounds | `#fffdf8` (cream) | `#1a2236` (dark surface) |
+| `--surface-elevated` | Elevated cards, modals | `#ffffff` | `#242d44` |
+| `--ink` | Primary text | `#2c2618` (warm brown) | `#e8ecea` (soft white) |
+| `--ink-secondary` | Secondary text | `#4a4232` | `#c5cbc6` |
+| `--muted` | Muted/helper text | `#6b6052` | `#8a958a` |
 
 #### Brand & Accent Colors
 
