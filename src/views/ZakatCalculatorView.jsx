@@ -1,21 +1,43 @@
-import { CURRENCY_OPTIONS } from "../models/zakatModel";
+import { useEffect } from "react";
 import { getCurrencySymbol } from "../utils/currency";
+import { useApp } from "../contexts/AppContext";
 import { StepIndicator } from "../components/StepIndicator";
-import { ThemeSelector } from "../components/ThemeSelector";
 import { useZakatCalculatorViewModel } from "../viewmodels/useZakatCalculatorViewModel";
 import { AssetsStepView } from "./steps/AssetsStepView";
 import { LiabilitiesStepView } from "./steps/LiabilitiesStepView";
 import { ResultsStepView } from "./steps/ResultsStepView";
 
 export function ZakatCalculatorView() {
+  const { currency: appCurrency, setCurrency: setAppCurrency, updateZakatDueFromCalculator } = useApp();
   const vm = useZakatCalculatorViewModel();
   const currencySymbol = getCurrencySymbol(vm.currency);
 
+  // Sync local currency with global app currency
+  useEffect(() => {
+    if (vm.currency !== appCurrency) {
+      vm.setCurrency(appCurrency);
+    }
+  }, [appCurrency, vm]);
+
+  // Sync local currency changes back to global
+  useEffect(() => {
+    if (vm.currency !== appCurrency) {
+      setAppCurrency(vm.currency);
+    }
+  }, [vm.currency, appCurrency, setAppCurrency]);
+
+  // Auto-sync zakat due to payments module when results are available
+  useEffect(() => {
+    if (vm.step === 3 && vm.result?.totals?.zakatDue > 0) {
+      updateZakatDueFromCalculator(vm.result.totals.zakatDue);
+    }
+  }, [vm.step, vm.result, updateZakatDueFromCalculator]);
+
   return (
-    <main className="app-shell">
+    <div className="app-shell">
       <header className="hero">
         <p className="hero-eyebrow">Fast • Guided • Stress-Free</p>
-        <h1>Zakatify</h1>
+        <h1>Zakat Calculator</h1>
         <p>
           Take the guesswork out of your zakat. Follow a simple guided flow to
           calculate what you owe in minutes — clear, organized, and easy to use.
@@ -25,23 +47,6 @@ export function ZakatCalculatorView() {
           Disclaimer: Please confirm your zakat obligations with a qualified
           scholar or trusted authority before making payment.
         </span>
-        <div className="hero-toolbar">
-          <ThemeSelector />
-          <label className="currency-select" htmlFor="app-currency">
-            <span>App Currency</span>
-            <select
-              id="app-currency"
-              value={vm.currency}
-              onChange={(event) => vm.setCurrency(event.target.value)}
-            >
-              {CURRENCY_OPTIONS.map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.code} - {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
       </header>
 
       <StepIndicator currentStep={vm.step} onStepSelect={vm.jumpToStep} />
@@ -89,6 +94,6 @@ export function ZakatCalculatorView() {
           Next
         </button>
       </footer>
-    </main>
+    </div>
   );
 }
