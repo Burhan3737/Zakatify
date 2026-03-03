@@ -1,4 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
+import {
+  loadUserPreferences,
+  saveUserPreferences,
+} from "../services/dataService";
 
 export const THEMES = {
   sahara: {
@@ -46,6 +51,7 @@ export const THEMES = {
 };
 
 const THEME_STORAGE_KEY = "zakatify-theme";
+const ACCORDION_STORAGE_KEY = "zakatify_accordion_state_v1";
 const DEFAULT_THEME = "sahara";
 
 const ThemeContext = createContext({
@@ -53,6 +59,8 @@ const ThemeContext = createContext({
   setTheme: () => {},
   toggleDarkMode: () => {},
   isDark: false,
+  accordionState: {},
+  setAccordionState: () => {},
 });
 
 function getSystemPreference() {
@@ -62,19 +70,56 @@ function getSystemPreference() {
     : DEFAULT_THEME;
 }
 
+function loadLocalStorageTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored && THEMES[stored]) {
+      return stored;
+    }
+  } catch (_e) {}
+  return getSystemPreference();
+}
+
+function loadLocalStorageAccordion() {
+  try {
+    const stored = localStorage.getItem(ACCORDION_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (_e) {}
+  return {};
+}
+
 export function ThemeProvider({ children }) {
-  const [currentThemeId, setCurrentThemeId] = useState(DEFAULT_THEME);
+  const { session, loading: authLoading } = useAuth();
+  const [currentThemeId, setCurrentThemeId] = useState(loadLocalStorageTheme);
+  const [accordionState, setAccordionState] = useState(
+    loadLocalStorageAccordion,
+  );
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY);
-    if (stored && THEMES[stored]) {
-      setCurrentThemeId(stored);
-    } else {
-      setCurrentThemeId(getSystemPreference());
+    async function loadPreferences() {
+      if (session?.user) {
+        try {
+          const prefs = await loadUserPreferences(session.user.id);
+          if (prefs) {
+            if (prefs.theme && THEMES[prefs.theme]) {
+              setCurrentThemeId(prefs.theme);
+            }
+            if (prefs.accordion_state) {
+              setAccordionState(prefs.accordion_state);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to load from Supabase:", e);
+        }
+      }
+      setIsInitialized(true);
     }
-    setIsInitialized(true);
-  }, []);
+
+    loadPreferences();
+  }, [session, authLoading]);
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -97,6 +142,11 @@ export function ThemeProvider({ children }) {
   }, [currentThemeId, isInitialized]);
 
   useEffect(() => {
+    if (!isInitialized) return;
+    localStorage.setItem(ACCORDION_STORAGE_KEY, JSON.stringify(accordionState));
+  }, [accordionState, isInitialized]);
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e) => {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
@@ -109,6 +159,17 @@ export function ThemeProvider({ children }) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  useEffect(() => {
+    if (!session?.user) return;
+
+    saveUserPreferences(session.user.id, {
+      theme: currentThemeId,
+      accordionState,
+    }).catch((e) => {
+      console.warn("Failed to save to Supabase:", e);
+    });
+  }, [session, currentThemeId, accordionState, isInitialized]);
+
   const setTheme = (themeId) => {
     if (THEMES[themeId]) {
       setCurrentThemeId(themeId);
@@ -116,14 +177,18 @@ export function ThemeProvider({ children }) {
   };
 
   const toggleDarkMode = () => {
-    const darkThemes = ["night", "ramadan"];
-    const lightThemes = ["sahara", "mosque", "marrakesh", "desertRose"];
-
     if (THEMES[currentThemeId].isDark) {
       setCurrentThemeId("sahara");
     } else {
       setCurrentThemeId("night");
     }
+  };
+
+  const handleSetAccordionState = (section, isOpen) => {
+    setAccordionState((prev) => ({
+      ...prev,
+      [section]: isOpen,
+    }));
   };
 
   const value = {
@@ -133,9 +198,13 @@ export function ThemeProvider({ children }) {
     toggleDarkMode,
     isDark: THEMES[currentThemeId].isDark,
     allThemes: Object.values(THEMES),
+    accordionState,
+    setAccordionState: handleSetAccordionState,
   };
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

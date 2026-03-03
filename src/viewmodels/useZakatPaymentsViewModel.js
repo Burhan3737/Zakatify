@@ -1,19 +1,18 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
-  loadPayments,
-  savePayments,
   createPayment,
-  addPayment,
-  deletePayment,
-  clearAllPayments,
   calculateTotalPaid,
   calculateRemainingBalance,
   validatePayment,
   PAYMENT_CATEGORIES,
 } from "../models/paymentsModel";
+import { useAuth } from "../contexts/AuthContext";
+import { loadPayments, savePayments } from "../services/dataService";
 
 export function useZakatPaymentsViewModel(zakatDue, currency) {
-  const [payments, setPayments] = useState(() => loadPayments());
+  const { session } = useAuth();
+  const [payments, setPayments] = useState([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [manualZakatDue, setManualZakatDue] = useState(() => {
     const stored = localStorage.getItem("zakatify_manual_zakat_due");
     return stored ? parseFloat(stored) : null;
@@ -24,6 +23,31 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [confirmMessage, setConfirmMessage] = useState("");
+
+  useEffect(() => {
+    if (!session?.user) {
+      setIsDataLoaded(true);
+      return;
+    }
+
+    async function loadData() {
+      const data = await loadPayments(session.user.id);
+      setPayments(data);
+      setIsDataLoaded(true);
+    }
+
+    loadData();
+  }, [session]);
+
+  const savePaymentsToDb = useCallback(
+    async (newPayments) => {
+      localStorage.setItem("zakatify_payments", JSON.stringify(newPayments));
+      if (session?.user) {
+        await savePayments(session.user.id, newPayments);
+      }
+    },
+    [session]
+  );
 
   const effectiveZakatDue = useMemo(() => {
     if (isManualMode && manualZakatDue !== null) {
@@ -50,19 +74,21 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
       }
 
       const newPayment = createPayment(category, description, amount, currency);
-      const updated = addPayment(payments, newPayment);
+      const updated = [newPayment, ...payments];
       setPayments(updated);
+      savePaymentsToDb(updated);
       return { success: true, payment: newPayment };
     },
-    [payments, currency]
+    [payments, currency, savePaymentsToDb]
   );
 
   const removePayment = useCallback(
     (paymentId) => {
-      const updated = deletePayment(payments, paymentId);
+      const updated = payments.filter((p) => p.id !== paymentId);
       setPayments(updated);
+      savePaymentsToDb(updated);
     },
-    [payments]
+    [payments, savePaymentsToDb]
   );
 
   const confirmDeletePayment = useCallback((paymentId, paymentDescription) => {
@@ -73,12 +99,13 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
 
   const confirmClearAll = useCallback(() => {
     setConfirmAction(() => () => {
-      const cleared = clearAllPayments();
+      const cleared = [];
       setPayments(cleared);
+      savePaymentsToDb(cleared);
     });
     setConfirmMessage("Are you sure you want to clear all payments? This action cannot be undone.");
     setShowConfirmDialog(true);
-  }, []);
+  }, [savePaymentsToDb]);
 
   const executeConfirm = useCallback(() => {
     if (confirmAction) {
@@ -126,8 +153,9 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
 
   const resetForNewYear = useCallback(() => {
     setConfirmAction(() => () => {
-      const cleared = clearAllPayments();
+      const cleared = [];
       setPayments(cleared);
+      savePaymentsToDb(cleared);
       setManualZakatDue(null);
       setIsManualMode(false);
       localStorage.removeItem("zakatify_manual_zakat_due");
@@ -136,7 +164,7 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
     });
     setConfirmMessage("Start a new zakat year? This will clear all payments and reset the zakat due amount.");
     setShowConfirmDialog(true);
-  }, []);
+  }, [savePaymentsToDb]);
 
   return {
     payments,

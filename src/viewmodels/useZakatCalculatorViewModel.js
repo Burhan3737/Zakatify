@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   DEFAULT_CURRENCY,
   calculateZakat,
@@ -9,25 +9,13 @@ import {
 import { fetchExchangeRatesFromUSD } from "../services/currencyRateService";
 import { fetchMetalPrices } from "../services/metalPriceService";
 import { getRateForCurrency } from "../utils/currency";
-
-function loadStoredForm() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultFormData;
-    const parsed = JSON.parse(raw);
-    return {
-      ...defaultFormData,
-      ...parsed,
-      assets: { ...defaultFormData.assets, ...parsed.assets },
-      liabilities: { ...defaultFormData.liabilities, ...parsed.liabilities },
-    };
-  } catch (_error) {
-    return defaultFormData;
-  }
-}
+import { useAuth } from "../contexts/AuthContext";
+import { loadCalculatorData, saveCalculatorData } from "../services/dataService";
 
 export function useZakatCalculatorViewModel() {
-  const [formData, setFormData] = useState(loadStoredForm);
+  const { session } = useAuth();
+  const [formData, setFormData] = useState(defaultFormData);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [step, setStep] = useState(1);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [metalPricesUsd, setMetalPricesUsd] = useState({
@@ -45,12 +33,63 @@ export function useZakatCalculatorViewModel() {
   });
 
   useEffect(() => {
-    // Persist user progress so they can leave and continue later.
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
-  }, [formData]);
+    async function loadData() {
+      let loadedData = null;
+      
+      if (session?.user) {
+        loadedData = await loadCalculatorData(session.user.id);
+      }
+
+      if (loadedData) {
+        setFormData({
+          ...defaultFormData,
+          ...loadedData,
+          assets: { ...defaultFormData.assets, ...(loadedData.assets || {}) },
+          liabilities: { ...defaultFormData.liabilities, ...(loadedData.liabilities || {}) },
+        });
+      } else {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            setFormData({
+              ...defaultFormData,
+              ...parsed,
+              assets: { ...defaultFormData.assets, ...parsed.assets },
+              liabilities: { ...defaultFormData.liabilities, ...parsed.liabilities },
+            });
+          } catch (_error) {
+            // Use defaultFormData
+          }
+        }
+      }
+      setIsDataLoaded(true);
+    }
+
+    if (!session?.user) {
+      setIsDataLoaded(true);
+      return;
+    }
+
+    loadData();
+  }, [session]);
+
+  const saveFormData = useCallback(
+    async (data) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if (session?.user) {
+        await saveCalculatorData(session.user.id, data);
+      }
+    },
+    [session]
+  );
 
   useEffect(() => {
-    // Fetch metal prices once per session; calculator works offline using fallback values.
+    if (!isDataLoaded) return;
+    saveFormData(formData);
+  }, [formData, isDataLoaded, saveFormData]);
+
+  useEffect(() => {
     let mounted = true;
     fetchMetalPrices()
       .then((result) => {
@@ -83,7 +122,6 @@ export function useZakatCalculatorViewModel() {
   const GRAMS_PER_TROY_OUNCE = 31.1034768;
   const GRAMS_PER_TOLA = 11.66;
 
-  // Convert metal prices from per-ounce to per-gram
   const pricesPerGram = useMemo(
     () => ({
       goldPerGram: (metalPricesUsd.goldPerOunce / GRAMS_PER_TROY_OUNCE) * conversionRate,
@@ -92,7 +130,6 @@ export function useZakatCalculatorViewModel() {
     [metalPricesUsd, conversionRate]
   );
 
-  // Convert user inputs to grams (or keep as value for value mode)
   function convertToGrams(mode, grams, ounce, tola, value, pricePerGram) {
     if (mode === "value") return Number(value || 0) / pricePerGram;
     if (mode === "ounce") return Number(ounce || 0) * GRAMS_PER_TROY_OUNCE;
@@ -100,7 +137,6 @@ export function useZakatCalculatorViewModel() {
     return Number(grams || 0);
   }
 
-  // Prepare formData with converted gram values for calculation
   const formDataWithGrams = useMemo(
     () => ({
       ...formData,
@@ -127,7 +163,6 @@ export function useZakatCalculatorViewModel() {
     [formData, pricesPerGram]
   );
 
-  // Prices for display (includes per-ounce and per-tola)
   const prices = useMemo(
     () => ({
       ...metalPricesUsd,

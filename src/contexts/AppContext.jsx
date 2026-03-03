@@ -1,5 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { STORAGE_KEY, DEFAULT_CURRENCY } from "../models/zakatModel";
+import { useAuth } from "./AuthContext";
+import { DEFAULT_CURRENCY } from "../models/zakatModel";
+import {
+  loadCalculatorResults,
+  saveCalculatorResults,
+  loadUserPreferences,
+  saveUserPreferences,
+} from "../services/dataService";
 
 const AppContext = createContext();
 
@@ -10,22 +17,11 @@ const DEFAULT_MODULE = "calculator";
 
 function loadInitialCurrency() {
   if (typeof window === "undefined") return DEFAULT_CURRENCY;
-  
-  // First try to get currency from calculator storage
-  try {
-    const calculatorData = localStorage.getItem(STORAGE_KEY);
-    if (calculatorData) {
-      const parsed = JSON.parse(calculatorData);
-      if (parsed.currency) return parsed.currency;
-    }
-  } catch (e) {
-    console.error("Error reading calculator currency:", e);
-  }
-  
   return DEFAULT_CURRENCY;
 }
 
 export function AppProvider({ children }) {
+  const { session, loading: authLoading } = useAuth();
   const [currency, setCurrency] = useState(loadInitialCurrency);
 
   const [activeModule, setActiveModule] = useState(() => {
@@ -39,23 +35,66 @@ export function AppProvider({ children }) {
     return stored ? parseFloat(stored) : null;
   });
 
-  // Currency is persisted through the calculator's storage
-  // The calculator viewmodel handles saving to STORAGE_KEY
-  // We just keep it in sync here
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    async function loadResults() {
+      if (session?.user) {
+        const [results, prefs] = await Promise.all([
+          loadCalculatorResults(session.user.id),
+          loadUserPreferences(session.user.id),
+        ]);
+
+        if (results) {
+          if (results.zatak_due != null) {
+            setSharedZakatDue(parseFloat(results.zatak_due));
+          }
+        }
+
+        if (prefs?.currency) {
+          setCurrency(prefs.currency);
+        }
+      }
+      setIsDataLoaded(true);
+    }
+
+    loadResults();
+  }, [session, authLoading]);
+
+  useEffect(() => {
+    if (!isDataLoaded || !session?.user) return;
+
+    if (sharedZakatDue !== null) {
+      localStorage.setItem(ZAKAT_DUE_STORAGE_KEY, sharedZakatDue.toString());
+      saveCalculatorResults(session.user.id, {
+        zakatDue: sharedZakatDue,
+        manualMode: false,
+        manualZakatDue: null,
+      });
+    }
+  }, [sharedZakatDue, session, isDataLoaded]);
+
+  useEffect(() => {
+    if (!isDataLoaded || !session?.user) return;
+
+    saveUserPreferences(session.user.id, {
+      currency: currency,
+    }).catch((e) => {
+      console.warn("Failed to save currency preference:", e);
+    });
+  }, [currency, session, isDataLoaded]);
 
   useEffect(() => {
     localStorage.setItem(MODULE_STORAGE_KEY, activeModule);
   }, [activeModule]);
 
-  useEffect(() => {
-    if (sharedZakatDue !== null) {
-      localStorage.setItem(ZAKAT_DUE_STORAGE_KEY, sharedZakatDue.toString());
-    }
-  }, [sharedZakatDue]);
-
   const updateZakatDueFromCalculator = (amount) => {
     if (amount > 0) {
       setSharedZakatDue(amount);
+    } else {
+      setSharedZakatDue(0);
     }
   };
 

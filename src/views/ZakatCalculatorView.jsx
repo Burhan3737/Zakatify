@@ -17,18 +17,13 @@ export function ZakatCalculatorView() {
     if (vm.currency !== appCurrency) {
       vm.setCurrency(appCurrency);
     }
-  }, [appCurrency, vm]);
+  }, [appCurrency]);
 
-  // Sync local currency changes back to global
-  useEffect(() => {
-    if (vm.currency !== appCurrency) {
-      setAppCurrency(vm.currency);
-    }
-  }, [vm.currency, appCurrency, setAppCurrency]);
+
 
   // Auto-sync zakat due to payments module when results are available
   useEffect(() => {
-    if (vm.step === 3 && vm.result?.totals?.zakatDue > 0) {
+    if (vm.step === 3) {
       updateZakatDueFromCalculator(vm.result.totals.zakatDue);
     }
   }, [vm.step, vm.result, updateZakatDueFromCalculator]);

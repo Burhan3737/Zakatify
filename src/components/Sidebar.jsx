@@ -2,15 +2,25 @@ import { useState } from "react";
 import { ThemeSelector } from "./ThemeSelector";
 import { CURRENCY_OPTIONS } from "../models/zakatModel";
 import { useApp } from "../contexts/AppContext";
+import { useAuth } from "../contexts/AuthContext";
 import { formatMoney } from "../utils/currency";
 
-export function Sidebar({ zakatDue }) {
-  const { currency, setCurrency, activeModule, setActiveModule } = useApp();
+export function Sidebar() {
+  const { currency, setCurrency, activeModule, setActiveModule, sharedZakatDue } = useApp();
+  const { signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const switchModule = (module) => {
     setActiveModule(module);
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -60,8 +70,8 @@ export function Sidebar({ zakatDue }) {
               >
                 <span className="nav-icon">💰</span>
                 <span className="nav-text">Payments</span>
-                {zakatDue > 0 && activeModule !== "payments" && (
-                  <span className="nav-badge">{formatMoney(zakatDue, currency, { maximumFractionDigits: 0 })}</span>
+                {sharedZakatDue > 0 && activeModule !== "payments" && (
+                  <span className="nav-badge">{formatMoney(sharedZakatDue, currency, { maximumFractionDigits: 0 })}</span>
                 )}
               </button>
             </li>
@@ -89,6 +99,12 @@ export function Sidebar({ zakatDue }) {
                   ))}
                 </select>
               </label>
+            </div>
+            <div className="setting-item">
+              <button className="logout-btn" onClick={handleLogout}>
+                <span className="nav-icon">🚪</span>
+                <span>Sign Out</span>
+              </button>
             </div>
           </div>
         </div>
