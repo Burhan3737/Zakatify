@@ -99,6 +99,8 @@ export function ThemeProvider({ children }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+    
     async function loadPreferences() {
       if (session?.user) {
         try {

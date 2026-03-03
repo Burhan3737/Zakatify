@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import {
   createPayment,
   calculateTotalPaid,
@@ -7,7 +7,12 @@ import {
   PAYMENT_CATEGORIES,
 } from "../models/paymentsModel";
 import { useAuth } from "../contexts/AuthContext";
-import { loadPayments, savePayments } from "../services/dataService";
+import {
+  loadPayments,
+  savePayments,
+  loadCalculatorResults,
+  saveCalculatorResults,
+} from "../services/dataService";
 
 export function useZakatPaymentsViewModel(zakatDue, currency) {
   const { session } = useAuth();
@@ -23,6 +28,11 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [confirmMessage, setConfirmMessage] = useState("");
+  const zakatDueRef = useRef(zakatDue);
+
+  useEffect(() => {
+    zakatDueRef.current = zakatDue;
+  }, [zakatDue]);
 
   useEffect(() => {
     if (!session?.user) {
@@ -31,13 +41,40 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
     }
 
     async function loadData() {
-      const data = await loadPayments(session.user.id);
-      setPayments(data);
+      try {
+        const [paymentsData, resultsData] = await Promise.all([
+          loadPayments(session.user.id),
+          loadCalculatorResults(session.user.id),
+        ]);
+
+        setPayments(paymentsData);
+
+        if (resultsData) {
+          if (resultsData.manual_mode) {
+            setIsManualMode(true);
+            if (resultsData.manual_zakat_due != null) {
+              setManualZakatDue(parseFloat(resultsData.manual_zakat_due));
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load from Supabase:", e);
+      }
       setIsDataLoaded(true);
     }
 
     loadData();
   }, [session]);
+
+  useEffect(() => {
+    if (!isDataLoaded || !session?.user) return;
+
+    saveCalculatorResults(session.user.id, {
+      manualMode: isManualMode,
+      manualZakatDue: isManualMode ? manualZakatDue : null,
+      zakatDue: zakatDueRef.current || null,
+    }).catch((e) => console.warn("Failed to save manual mode:", e));
+  }, [session, isManualMode, manualZakatDue, isDataLoaded]);
 
   const savePaymentsToDb = useCallback(
     async (newPayments) => {
@@ -46,7 +83,7 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
         await savePayments(session.user.id, newPayments);
       }
     },
-    [session]
+    [session],
   );
 
   const effectiveZakatDue = useMemo(() => {
@@ -60,7 +97,7 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
 
   const remainingBalance = useMemo(
     () => calculateRemainingBalance(effectiveZakatDue, totalPaid),
-    [effectiveZakatDue, totalPaid]
+    [effectiveZakatDue, totalPaid],
   );
 
   const isComplete = remainingBalance <= 0 && effectiveZakatDue > 0;
@@ -79,7 +116,7 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
       savePaymentsToDb(updated);
       return { success: true, payment: newPayment };
     },
-    [payments, currency, savePaymentsToDb]
+    [payments, currency, savePaymentsToDb],
   );
 
   const removePayment = useCallback(
@@ -88,14 +125,19 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
       setPayments(updated);
       savePaymentsToDb(updated);
     },
-    [payments, savePaymentsToDb]
+    [payments, savePaymentsToDb],
   );
 
-  const confirmDeletePayment = useCallback((paymentId, paymentDescription) => {
-    setConfirmAction(() => () => removePayment(paymentId));
-    setConfirmMessage(`Are you sure you want to delete the payment "${paymentDescription}"?`);
-    setShowConfirmDialog(true);
-  }, [removePayment]);
+  const confirmDeletePayment = useCallback(
+    (paymentId, paymentDescription) => {
+      setConfirmAction(() => () => removePayment(paymentId));
+      setConfirmMessage(
+        `Are you sure you want to delete the payment "${paymentDescription}"?`,
+      );
+      setShowConfirmDialog(true);
+    },
+    [removePayment],
+  );
 
   const confirmClearAll = useCallback(() => {
     setConfirmAction(() => () => {
@@ -103,7 +145,9 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
       setPayments(cleared);
       savePaymentsToDb(cleared);
     });
-    setConfirmMessage("Are you sure you want to clear all payments? This action cannot be undone.");
+    setConfirmMessage(
+      "Are you sure you want to clear all payments? This action cannot be undone.",
+    );
     setShowConfirmDialog(true);
   }, [savePaymentsToDb]);
 
@@ -162,7 +206,9 @@ export function useZakatPaymentsViewModel(zakatDue, currency) {
       localStorage.removeItem("zakatify_manual_mode");
       localStorage.removeItem("zakatify_shared_zakat_due");
     });
-    setConfirmMessage("Start a new zakat year? This will clear all payments and reset the zakat due amount.");
+    setConfirmMessage(
+      "Start a new zakat year? This will clear all payments and reset the zakat due amount.",
+    );
     setShowConfirmDialog(true);
   }, [savePaymentsToDb]);
 

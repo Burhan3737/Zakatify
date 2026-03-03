@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { formatMoney } from "../utils/currency";
 
 export function Sidebar() {
-  const { currency, setCurrency, activeModule, setActiveModule, sharedZakatDue } = useApp();
+  const { currency, setCurrency, activeModule, setActiveModule, sharedZakatDue, } = useApp();
   const { signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

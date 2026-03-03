@@ -105,7 +105,7 @@ create table payments (
 create table calculator_results (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users not null unique,
-  zatak_due numeric,
+  zakat_due numeric,
   manual_mode boolean default false,
   manual_zakat_due numeric,
   created_at timestamptz default now(),

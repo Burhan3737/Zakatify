@@ -3,7 +3,7 @@ import { useAuth } from "./AuthContext";
 import { DEFAULT_CURRENCY } from "../models/zakatModel";
 import {
   loadCalculatorResults,
-  saveCalculatorResults,
+  updateZakatDue,
   loadUserPreferences,
   saveUserPreferences,
 } from "../services/dataService";
@@ -48,8 +48,8 @@ export function AppProvider({ children }) {
         ]);
 
         if (results) {
-          if (results.zatak_due != null) {
-            setSharedZakatDue(parseFloat(results.zatak_due));
+          if (results.zakat_due != null) {
+            setSharedZakatDue(parseFloat(results.zakat_due));
           }
         }
 
@@ -68,10 +68,8 @@ export function AppProvider({ children }) {
 
     if (sharedZakatDue !== null) {
       localStorage.setItem(ZAKAT_DUE_STORAGE_KEY, sharedZakatDue.toString());
-      saveCalculatorResults(session.user.id, {
-        zakatDue: sharedZakatDue,
-        manualMode: false,
-        manualZakatDue: null,
+      updateZakatDue(session.user.id, sharedZakatDue).catch((e) => {
+        console.warn("Failed to save zakat_due:", e);
       });
     }
   }, [sharedZakatDue, session, isDataLoaded]);

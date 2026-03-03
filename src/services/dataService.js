@@ -199,7 +199,7 @@ export async function saveCalculatorResults(userId, results) {
     const { data: result, error } = await supabase
       .from("calculator_results")
       .update({
-        zatak_due: results.zakatDue,
+        zakat_due: results.zakatDue,
         manual_mode: results.manualMode,
         manual_zakat_due: results.manualZakatDue,
         updated_at: new Date().toISOString(),
@@ -218,7 +218,7 @@ export async function saveCalculatorResults(userId, results) {
       .from("calculator_results")
       .insert({
         user_id: userId,
-        zatak_due: results.zakatDue,
+        zakat_due: results.zakatDue,
         manual_mode: results.manualMode,
         manual_zakat_due: results.manualZakatDue,
       })
@@ -227,6 +227,47 @@ export async function saveCalculatorResults(userId, results) {
 
     if (error) {
       console.error("Error creating calculator results:", error);
+      return null;
+    }
+    return result;
+  }
+}
+
+export async function updateZakatDue(userId, amount) {
+  const { data: existing } = await supabase
+    .from("calculator_results")
+    .select("id")
+    .eq("user_id", userId)
+    .single();
+
+  if (existing) {
+    const { data: result, error } = await supabase
+      .from("calculator_results")
+      .update({
+        zakat_due: amount,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating zakat_due:", error);
+      return null;
+    }
+    return result;
+  } else {
+    const { data: result, error } = await supabase
+      .from("calculator_results")
+      .insert({
+        user_id: userId,
+        zakat_due: amount,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating zakat_due:", error);
       return null;
     }
     return result;
